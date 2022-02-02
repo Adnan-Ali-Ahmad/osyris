@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2021 Osyris contributors (https://github.com/nvaytet/osyris)
+# Copyright (c) 2022 Osyris contributors (https://github.com/nvaytet/osyris)
 
 import matplotlib.pyplot as plt
 
@@ -34,8 +34,7 @@ def render(x=None, y=None, data=None, logx=False, logy=False, ax=None):
         "lic": "line_integral_convolution",
         None: config.parameters["render_mode"],
         "image": "pcolormesh",
-        "imshow": "pcolormesh",
-        "contourf": "contourf"
+        "imshow": "pcolormesh"
     }
 
     mpl_objects = []

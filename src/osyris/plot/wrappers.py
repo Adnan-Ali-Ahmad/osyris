@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2021 Osyris contributors (https://github.com/nvaytet/osyris)
+# Copyright (c) 2022 Osyris contributors (https://github.com/nvaytet/osyris)
+
 from .. import config
 from ..core import Array
 from contextlib import redirect_stderr
@@ -72,7 +73,16 @@ def pcolormesh(ax, x, y, z, cbar=False, cblabel=None, zorder=1, **kwargs):
     return out
 
 
-def contour(ax, x, y, z, cbar=False, cblabel=None, labels=True, zorder=2, fmt="%1.3f", **kwargs):
+def contour(ax,
+            x,
+            y,
+            z,
+            cbar=False,
+            cblabel=None,
+            labels=True,
+            zorder=2,
+            fmt='%1.3f',
+            **kwargs):
     """
     Wrapper around Matplotlib's contour plot.
 
@@ -125,7 +135,7 @@ def scatter(ax, x, y, z, cbar=False, cblabel=None, zorder=2, **kwargs):
     If PatchCollection is used, we convert the scatter args to the
     PatchCollection syntax (e.g. "c" -> "color").
     """
-    default_args = {"c": "b", "edgecolors": "k", "zorder": zorder}
+    default_args = {"c": "C0", "edgecolors": "k", "zorder": zorder}
     default_args.update(kwargs)
     use_patchcollection = False
     need_cbar = False
