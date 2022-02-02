@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2021 Osyris contributors (https://github.com/nvaytet/osyris)
+# Copyright (c) 2022 Osyris contributors (https://github.com/nvaytet/osyris)
 
 # Configuration file for the Sphinx documentation builder.
 #
@@ -22,7 +22,7 @@ sys.path.insert(0, src)
 # -- Project information -----------------------------------------------------
 
 project = 'osyris'
-copyright = '2021, Osyris contributors'
+copyright = '2022, Osyris contributors'
 author = 'Neil Vaytet'
 
 # -- General configuration ---------------------------------------------------
@@ -31,8 +31,11 @@ author = 'Neil Vaytet'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc', 'sphinx.ext.autosummary', 'sphinx.ext.mathjax', 'nbsphinx'
+    'sphinx.ext.autodoc', 'sphinx.ext.autosummary', 'sphinx.ext.mathjax', 'nbsphinx',
+    'sphinx_copybutton'
 ]
+
+autodoc_typehints = 'description'
 
 autosummary_generate = True
 

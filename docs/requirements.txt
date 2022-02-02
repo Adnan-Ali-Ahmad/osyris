@@ -1,9 +1,11 @@
 matplotlib
-numpy
 scipy
+numba
+numpy
 sphinx
 nbsphinx
 jupyter
 pint
+sphinx-copybutton
 sphinx-book-theme
 lic
