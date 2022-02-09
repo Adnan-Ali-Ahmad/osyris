@@ -33,7 +33,8 @@ def parse_layer(layer,
             vmax = params["vmax"]
             del params["vmax"]
 
-        params["norm"] = get_norm(norm=params["norm"], vmin=vmin, vmax=vmax)
+        if isinstance(params["norm"], str):
+            params["norm"] = get_norm(norm=params["norm"], vmin=vmin, vmax=vmax)
 
         for key, arg in kwargs.items():
             if key not in params:
