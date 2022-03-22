@@ -121,7 +121,7 @@ def read_eos_table(fname):
 	Read binary EOS table in fname
 	"""
 
-	print("Loading EOS table: "+fname)
+	print("Loading EOS table: "+fname+" ...", end="")
 
 	# Read binary EOS file
 	with open(fname, mode='rb') as f:
@@ -164,7 +164,7 @@ def read_eos_table(fname):
 	Eint = theTable["ener_eos"]/theTable["rho_eos"]
 	theTable["grid"] = (np.log10(theTable["rho_eos"][:,0]), np.log10(Eint[0,:]))
 
-	print("EOS table read successfully")
+	print(" done!")
 
 	return theTable
 
