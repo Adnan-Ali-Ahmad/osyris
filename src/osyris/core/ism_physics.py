@@ -121,7 +121,7 @@ def read_eos_table(fname):
 	Read binary EOS table in fname
 	"""
 
-	print("Loading EOS table: "+fname+" ...", end="")
+	print("Loading EOS table: "+'"{}"'.format(fname)+"...", end="")
 
 	# Read binary EOS file
 	with open(fname, mode='rb') as f:
