@@ -168,7 +168,7 @@ def read_eos_table(fname):
 
 	return theTable
 
-def get_eos(dataset, fname, variables={"temp_eos":"K","pres_eos":"dyn/cm^2","s_eos":"erg/K/g","cs_eos":"cm/s","xH_eos":None,"xH2_eos":None,"xHe_eos":None,"xHep_eos":None}):
+def get_eos(dataset, fname, variables={"rho_eos":"g/cm^3", "ener_eos":"erg","temp_eos":"K","pres_eos":"dyn/cm^2","s_eos":"erg/K/g","cs_eos":"cm/s","xH_eos":None,"xH2_eos":None,"xHe_eos":None,"xHep_eos":None}):
 	"""
 	Create EOS variables from interpolation of eos table values in fname.
 	"""
