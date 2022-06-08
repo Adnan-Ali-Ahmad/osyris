@@ -83,9 +83,10 @@ def get_unit(string, meta):
     }
 
     if "ngrp" in meta:
-        ramses_units.update(
-            {"radiative_energy_{}".format(i)
-             for i in range(1, meta["ngrp"] + 1)})
+        ramses_units.update({
+            "radiative_energy_{}".format(i): energy
+            for i in range(1, meta["ngrp"] + 1)
+        })
 
     if string in ramses_units:
         return ramses_units[string]
