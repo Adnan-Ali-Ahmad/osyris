@@ -41,8 +41,7 @@ class HydroReader(Reader):
                     "type": "d",
                     "buffer": None,
                     "pieces": {},
-                    "unit": config.get_unit(key, meta["unit_d"], meta["unit_l"],
-                                            meta["unit_t"])
+                    "unit": config.get_unit(key, meta)
                 }
         else:
             for i in range(len(descriptor)):
@@ -58,8 +57,7 @@ class HydroReader(Reader):
                     "type": descriptor[i, 2].strip(),
                     "buffer": None,
                     "pieces": {},
-                    "unit": config.get_unit(key, meta["unit_d"], meta["unit_l"],
-                                            meta["unit_t"])
+                    "unit": config.get_unit(key)
                 }
         self.initialized = True
 

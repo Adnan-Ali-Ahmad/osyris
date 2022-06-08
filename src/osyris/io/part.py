@@ -21,8 +21,7 @@ class PartReader(Reader):
         except IOError:
             return
 
-        scaling = utils.get_spatial_scaling(meta["unit_d"], meta["unit_l"],
-                                            meta["unit_t"], meta["scale"])
+        scaling = utils.get_spatial_scaling(meta, meta["scale"])
 
         part_units = {
             'position_x': scaling,
@@ -48,7 +47,7 @@ class PartReader(Reader):
                 "pieces": {},
                 "unit":
                 part_units[key] if key in part_units else config.get_unit(
-                    key, meta["unit_d"], meta["unit_l"], meta["unit_t"])
+                    key, meta)
             }
         self.initialized = True
 

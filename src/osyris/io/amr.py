@@ -14,16 +14,14 @@ class AmrReader(Reader):
         self.cpu_list = None
 
     def initialize(self, meta, select, ramses_ism):
-        length_unit = config.get_unit("x", meta["unit_d"], meta["unit_l"],
-                                      meta["unit_t"])
+        length_unit = config.get_unit("x", meta)
         if meta["scale"] is not None:
             scale = units(meta["scale"])
             scaling = (length_unit.to(scale) / scale).magnitude * scale
         else:
             scaling = length_unit
 
-        scaling = utils.get_spatial_scaling(meta["unit_d"], meta["unit_l"],
-                                            meta["unit_t"], meta["scale"])
+        scaling = utils.get_spatial_scaling(meta, meta["scale"])
 
         if select is False:
             meta["lmax"] = 0

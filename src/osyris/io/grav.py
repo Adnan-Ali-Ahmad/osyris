@@ -32,8 +32,7 @@ class GravReader(Reader):
                 "type": descriptor[key],
                 "buffer": None,
                 "pieces": {},
-                "unit": config.get_unit(key, meta["unit_d"], meta["unit_l"],
-                                        meta["unit_t"])
+                "unit": config.get_unit(key, meta)
             }
         self.initialized = True
 

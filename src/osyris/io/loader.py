@@ -43,8 +43,7 @@ class Loader:
         meta["infile"] = self.infile
         meta["nout"] = self.nout
         meta["path"] = self.path
-        meta["time"] *= config.get_unit("time", meta["unit_d"], meta["unit_l"],
-                                        meta["unit_t"])
+        meta["time"] *= config.get_unit("time", meta)
         meta["ncells"] = 0
         meta["nparticles"] = 0
         return meta

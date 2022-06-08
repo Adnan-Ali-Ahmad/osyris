@@ -17,7 +17,11 @@ parameters = {
 }
 
 
-def get_unit(string, ud, ul, ut):
+def get_unit(string, meta):
+
+    ud = meta["unit_d"]
+    ul = meta["unit_l"]
+    ut = meta["unit_t"]
 
     density = ud * (ureg.g / (ureg.cm**3))
     velocity = (ul / ut) * (ureg.cm / ureg.s)
@@ -65,7 +69,6 @@ def get_unit(string, ud, ul, ut):
         'thermal_pressure': energy,
         'pressure': energy,
         'radiative_energy': energy,
-        'radiative_energy_1': energy,
         'internal_energy': energy,
         'rad_force_x': acceleration,
         'rad_force_y': acceleration,
@@ -78,6 +81,11 @@ def get_unit(string, ud, ul, ut):
         'dx': length,
         'mass': mass
     }
+
+    if "ngrp" in meta:
+        ramses_units.update(
+            {"radiative_energy_{}".format(i)
+             for i in range(1, meta["ngrp"] + 1)})
 
     if string in ramses_units:
         return ramses_units[string]
