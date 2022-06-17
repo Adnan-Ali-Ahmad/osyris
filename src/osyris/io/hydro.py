@@ -1,9 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2022 Osyris contributors (https://github.com/nvaytet/osyris)
+# Copyright (c) 2022 Osyris contributors (https://github.com/osyris-project/osyris)
 import numpy as np
 import os
 from .reader import Reader, ReaderKind
-from .. import config
 from . import utils
 
 
@@ -11,54 +10,28 @@ class HydroReader(Reader):
     def __init__(self):
         super().__init__(kind=ReaderKind.AMR)
 
-    def initialize(self, meta, select, ramses_ism):
+    def initialize(self, meta, units, select):
+        self.initialized = False
+        if select is False:
+            return
+
         # Read the number of variables from the hydro_file_descriptor.txt
         # and select the ones to be read if specified by user
         fname = os.path.join(meta["infile"], "hydro_file_descriptor.txt")
-
         try:
-            if ramses_ism:
-                f = open(fname, "r")
-                data = f.readlines()
-                f.close()
-            else:
-                descriptor = np.loadtxt(fname, dtype=str, delimiter=",")
+            desc_from_file = np.loadtxt(fname, dtype=str, delimiter=",")
         except IOError:
             return
 
-        if ramses_ism:
-            nvar = int(data[0].split()[-1])
-            for i in range(nvar):
-                key = data[i+1].split()[-1]
-                read = True
-                if isinstance(select, bool):
-                    read = select
-                elif key in select:
-                    if isinstance(select[key], bool):
-                        read = select[key]
-                self.variables[key] = {
-                    "read": read,
-                    "type": "d",
-                    "buffer": None,
-                    "pieces": {},
-                    "unit": config.get_unit(key, meta)
-                }
-        else:
-            for i in range(len(descriptor)):
-                key = descriptor[i, 1].strip()
-                read = True
-                if isinstance(select, bool):
-                    read = select
-                elif key in select:
-                    if isinstance(select[key], bool):
-                        read = select[key]
-                self.variables[key] = {
-                    "read": read,
-                    "type": descriptor[i, 2].strip(),
-                    "buffer": None,
-                    "pieces": {},
-                    "unit": config.get_unit(key)
-                }
+        descriptor = {
+            desc_from_file[i, 1].strip(): desc_from_file[i, 2].strip()
+            for i in range(len(desc_from_file))
+        }
+
+        self.descriptor_to_variables(descriptor=descriptor,
+                                     meta=meta,
+                                     units=units,
+                                     select=select)
         self.initialized = True
 
     def read_header(self, info):
