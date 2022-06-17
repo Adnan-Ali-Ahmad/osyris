@@ -27,6 +27,7 @@ class HydroReader(Reader):
                 for i in range(nvar):
                     comp = [i + 1, data[i + 1].split()[-1], "d"]
                     desc_from_file.append(comp)
+                desc_from_file = np.array(desc_from_file)
             else:
                 desc_from_file = np.loadtxt(fname, dtype=str, delimiter=",")
         except IOError:
