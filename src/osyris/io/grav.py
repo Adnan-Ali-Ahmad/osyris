@@ -26,8 +26,7 @@ class GravReader(Reader):
         self.descriptor_to_variables(descriptor=descriptor,
                                      meta=meta,
                                      units=units,
-                                     select=select,
-                                     ramses_ism=ramses_ism)
+                                     select=select)
         self.initialized = True
 
     def read_header(self, info):

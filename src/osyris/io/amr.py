@@ -20,7 +20,7 @@ class AmrReader(Reader):
         self.descriptor_to_variables(descriptor=descriptor,
                                      meta=meta,
                                      units=units,
-                                     select=select, ramses_ism=ramses_ism)
+                                     select=select)
 
         self.cpu_list = hilbert_cpu_list(meta=meta,
                                          scaling=units["x"],
