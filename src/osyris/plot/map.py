@@ -352,6 +352,7 @@ def map(*layers,
     counter = 0
     for ind in range(len(to_render)):
         if scalar_layer[ind]:
+            print(mask)
             to_render[ind]["data"] = ma.masked_where(mask,
                                                      binned[counter, ...],
                                                      copy=False)
@@ -378,7 +379,6 @@ def map(*layers,
     }
     if plot:
         # Render the map
-        print(to_render)
         figure = render(x=xcenters, y=ycenters, data=to_render, ax=ax)
         figure["ax"].set_xlabel(
             Array(values=0, unit=map_unit, name=dir_vecs["pos_u"].name).label)
