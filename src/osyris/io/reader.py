@@ -29,6 +29,10 @@ class Reader():
                 if value is True:
                     drop_others = True
 
+        print(descriptor)
+        for g in descriptor:
+            print(g)
+
         try:
             if ramses_ism:
                 f = open(descriptor, "r")
