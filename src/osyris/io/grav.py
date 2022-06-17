@@ -9,7 +9,7 @@ class GravReader(Reader):
     def __init__(self):
         super().__init__(kind=ReaderKind.AMR)
 
-    def initialize(self, meta, units, select):
+    def initialize(self, meta, units, select, ramses_ism):
         self.initialized = False
         if select is False:
             return

@@ -14,7 +14,7 @@ class SinkReader:
         self.kind = ReaderKind.SINK
         self.initialized = False
 
-    def initialize(self, meta, units, select):
+    def initialize(self, meta, units, select, ramses_ism):
         if select is False:
             return
         sink = Datagroup()

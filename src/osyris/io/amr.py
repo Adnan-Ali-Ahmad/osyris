@@ -11,7 +11,7 @@ class AmrReader(Reader):
         super().__init__(kind=ReaderKind.AMR)
         self.cpu_list = None
 
-    def initialize(self, meta, units, select):
+    def initialize(self, meta, units, select, ramses_ism):
         self.initialized = False
 
         descriptor = {"level": "i", "cpu": "i", "dx": "d"}
