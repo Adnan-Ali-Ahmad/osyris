@@ -32,6 +32,7 @@ class HydroReader(Reader):
         except IOError:
             return
 
+        print(desc_from_file)
         descriptor = {
             desc_from_file[i, 1].strip(): desc_from_file[i, 2].strip()
             for i in range(len(desc_from_file))
