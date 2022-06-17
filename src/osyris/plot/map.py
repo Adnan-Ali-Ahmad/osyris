@@ -378,7 +378,7 @@ def map(*layers,
     }
     if plot:
         # Render the map
-        print(xcenters)
+        print(to_render)
         figure = render(x=xcenters, y=ycenters, data=to_render, ax=ax)
         figure["ax"].set_xlabel(
             Array(values=0, unit=map_unit, name=dir_vecs["pos_u"].name).label)
