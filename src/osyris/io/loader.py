@@ -44,7 +44,7 @@ class Loader:
         meta["nparticles"] = 0
         return meta
 
-    def load(self, select=None, cpu_list=None, sortby=None, meta=None, units=None):
+    def load(self, select=None, cpu_list=None, sortby=None, meta=None, units=None, ramses_ism=False):
 
         out = {}
         groups = list(self.readers.keys())
