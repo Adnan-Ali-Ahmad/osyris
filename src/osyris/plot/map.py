@@ -228,8 +228,6 @@ def map(*layers,
     dataz = coords.dot(normal)
     datadx = dataset["amr"]["dx"][indices_close_to_plane] * 0.5
 
-    np.save("/data/aa266127/datax", close_to_plane)
-
     if xmin is None:
         xmin = (datax - datadx).min().values
         xmax = (datax + datadx).max().values
