@@ -87,10 +87,6 @@ def read_binary_data(content=None,
     if skip_head:
         offset += 4
 
-    if increment:
-        offsets[fmt[-1]] += mult
-    offsets["n"] += 1
-
     return struct.unpack(fmt, content[offset:offset + pack_size])
 
 
