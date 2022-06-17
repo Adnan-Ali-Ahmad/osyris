@@ -1,8 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2022 Osyris contributors (https://github.com/nvaytet/osyris)
+# Copyright (c) 2022 Osyris contributors (https://github.com/osyris-project/osyris)
 import os
 from .reader import Reader, ReaderKind
-from .. import config
 from . import utils
 
 
@@ -10,7 +9,11 @@ class GravReader(Reader):
     def __init__(self):
         super().__init__(kind=ReaderKind.AMR)
 
-    def initialize(self, meta, select, ramses_ism):
+    def initialize(self, meta, units, select):
+        self.initialized = False
+        if select is False:
+            return
+
         fname = utils.generate_fname(meta["nout"], meta["path"], ftype="grav", cpuid=1)
         # Check if self-gravity files exist
         if not os.path.exists(fname):
@@ -19,21 +22,11 @@ class GravReader(Reader):
         descriptor = {"grav_potential": "d"}
         for n in range(meta["ndim"]):
             descriptor["grav_acceleration_" + "xyz"[n]] = "d"
-        # Now add to the list of variables to be read
-        for key in descriptor:
-            read = True
-            if isinstance(select, bool):
-                read = select
-            elif key in select:
-                if isinstance(select[key], bool):
-                    read = select[key]
-            self.variables[key] = {
-                "read": read,
-                "type": descriptor[key],
-                "buffer": None,
-                "pieces": {},
-                "unit": config.get_unit(key, meta)
-            }
+
+        self.descriptor_to_variables(descriptor=descriptor,
+                                     meta=meta,
+                                     units=units,
+                                     select=select)
         self.initialized = True
 
     def read_header(self, info):

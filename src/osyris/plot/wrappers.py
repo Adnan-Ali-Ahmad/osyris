@@ -1,9 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2022 Osyris contributors (https://github.com/nvaytet/osyris)
+# Copyright (c) 2022 Osyris contributors (https://github.com/osyris-project/osyris)
 
-from .. import config
 from ..core import Array
-from contextlib import redirect_stderr
+from contextlib import redirect_stderr, nullcontext
 import io
 import matplotlib.pyplot as plt
 from matplotlib.cm import ScalarMappable
@@ -61,11 +60,7 @@ def pcolormesh(ax, x, y, z, cbar=False, cblabel=None, zorder=1, **kwargs):
     """
     Wrapper around Matplotlib's pcolormesh plot.
     """
-    default_args = {
-        "shading": "nearest",
-        "zorder": zorder,
-        "cmap": config.parameters["cmap"]
-    }
+    default_args = {"shading": "nearest", "zorder": zorder}
     default_args.update(kwargs)
     out = ax.pcolormesh(x, y, z, **default_args)
     if cbar:
@@ -99,8 +94,6 @@ def contourf(ax, x, y, z, cbar=False, cblabel=None, zorder=1, **kwargs):
     """
     Wrapper around Matplotlib's contourf plot.
     """
-    if "cmap" not in kwargs:
-        kwargs["cmap"] = config.parameters["cmap"]
     out = ax.contourf(x, y, z, **kwargs)
     if cbar:
         _add_colorbar(obj=out, ax=ax, label=cblabel)
@@ -111,7 +104,7 @@ def streamplot(ax, x, y, z, cbar=False, cblabel=None, color='w', zorder=2, **kwa
     """
     Wrapper around Matplotlib's streamplot plot.
     """
-    default_args = {"color": "w", "zorder": zorder, "cmap": config.parameters["cmap"]}
+    default_args = {"color": "w", "zorder": zorder}
     default_args.update(kwargs)
     if isinstance(color, str):
         default_args["color"] = color
@@ -200,11 +193,9 @@ def line_integral_convolution(ax,
     # Compute line integral convolution
     if length is None:
         length = int(max(z.shape[:-1]) * 15 / 128)
-    if verbose:
+    cm = nullcontext() if verbose else redirect_stderr(io.StringIO())
+    with cm:
         lic_res = lic(z[..., 1], z[..., 0], length=length)
-    else:
-        with redirect_stderr(io.StringIO()) as _:
-            lic_res = lic(z[..., 1], z[..., 0], length=length)
 
     if color is not None:
         plot_args = {**kwargs}
@@ -230,6 +221,7 @@ def line_integral_convolution(ax,
                             0.5 * (3 * x[0] - x[1]), 0.5 * (3 * x[-1] - x[-2]),
                             0.5 * (3 * y[0] - y[1]), 0.5 * (3 * y[-1] - y[-2])
                         ],
+                        aspect='auto',
                         origin='lower',
                         zorder=1)
         # Add the colorbar using the ScalarMappable

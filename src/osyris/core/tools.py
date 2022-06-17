@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2022 Osyris contributors (https://github.com/nvaytet/osyris)
+# Copyright (c) 2022 Osyris contributors (https://github.com/osyris-project/osyris)
 
 import numpy as np
 
@@ -44,21 +44,6 @@ def to_bin_edges(x):
     return np.append(np.insert(centers, 0, left), right)
 
 
-def perpendicular_vector(v):
-    """
-    Compute a vector perpendicular to the input vector
-    """
-
-    # x = y = z = 0 is not an acceptable solution
-    if v[0] == v[1] == v[2] == 0:
-        raise ValueError("zero-vector")
-
-    if v[2] == 0:
-        return [-v[1], v[0], 0]
-    else:
-        return [1.0, 1.0, -1.0 * (v[0] + v[1]) / v[2]]
-
-
 def value_to_string(val, precision=3):
     """
     Convert a number to a human readable string.
@@ -82,7 +67,7 @@ def make_label(name=None, unit=None):
     lab = ""
     if name:
         lab += name
-    if unit and unit != units.dimensionless:
+    if unit and unit != units('dimensionless'):
         if name:
             lab += " "
         lab += "[{:~}]".format(unit)

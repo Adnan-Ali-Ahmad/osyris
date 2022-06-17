@@ -31,25 +31,25 @@ data = osyris.Dataset(8, scale="au", path="data").load()
 osyris.histogram2d(data["hydro"]["density"], data["hydro"]["B_field"],
                    norm="log", loglog=True)
 ```
-![hist2d](https://osyris.readthedocs.io/en/stable/_images/plotting_3_1.png)
+![hist2d](https://osyris.readthedocs.io/en/stable/_images/plotting_histograms_13_1.png)
 
 Create a 2D gas density slice 2000 au wide through the plane normal to ``z``,
 with velocity vectors overlayed as arrows, once again using ``layers``:
 
 ```python
 ind = np.argmax(data["hydro"]["density"])
-center = data["amr"]["xyz"][ind.values]
+center = data["amr"]["position"][ind.values]
 osyris.plane({"data": data["hydro"]["density"], "norm": "log"}, # layer 1
              {"data": data["hydro"]["velocity"], "mode": "vec"}, # layer 2
              dx=2000 * osyris.units("au"),
              origin=center,
              direction="z")
 ```
-![map2d](https://osyris.readthedocs.io/en/stable/_images/plotting_7_1.png)
+![map2d](https://osyris.readthedocs.io/en/stable/_images/plotting_maps_23_1.png)
 
 ## Have a problem or need a new feature?
 
-- Bugs reports or feature requests should be submitted by opening an [issue](https://github.com/osyris-project/osyris/issues)
+- Bug reports or feature requests should be submitted by opening an [issue](https://github.com/osyris-project/osyris/issues)
 - For general discussions or questions about how to do something with `osyris`, start a new [discussion](https://github.com/osyris-project/osyris/discussions)
 
 ## Logo credit

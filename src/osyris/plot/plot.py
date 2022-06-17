@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2022 Osyris contributors (https://github.com/nvaytet/osyris)
+# Copyright (c) 2022 Osyris contributors (https://github.com/osyris-project/osyris)
 
 import numpy as np
 from typing import Union
@@ -64,6 +64,13 @@ def plot(x: Array,
     yaxis_unit = None
     xvals = None
 
+    if y:
+        if isinstance(y, Array):
+            y = [y]
+    else:
+        y = [x]
+        x = Array(values=np.arange(len(x)))
+
     if isinstance(x, dict):
         to_plot.append({
             "x": x["x"].norm,
@@ -71,15 +78,12 @@ def plot(x: Array,
             "params": {
                 **kwargs
             },
-            "unit": x["y"].unit.units,
+            "unit": x["y"].unit,
             "name": x["y"].name
         })
         yaxis_unit = x["y"].unit
     else:
         xvals = x.norm
-
-    if isinstance(y, Array):
-        y = [y]
 
     for layer in y:
 
@@ -95,7 +99,7 @@ def plot(x: Array,
                 "params": {
                     **kwargs
                 },
-                "unit": layer["y"].unit.units,
+                "unit": layer["y"].unit,
                 "name": layer["y"].name
             }
             layer_dict["x"] = layer["x"].norm if "x" in layer else layer_x
@@ -108,7 +112,7 @@ def plot(x: Array,
                 "params": {
                     **kwargs
                 },
-                "unit": layer.unit.units,
+                "unit": layer.unit,
                 "name": layer.name
             })
             layer_unit = layer.unit

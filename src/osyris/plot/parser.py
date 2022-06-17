@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2022 Osyris contributors (https://github.com/nvaytet/osyris)
+# Copyright (c) 2022 Osyris contributors (https://github.com/osyris-project/osyris)
 
 from matplotlib.colors import LogNorm, Normalize, SymLogNorm
 
@@ -15,6 +15,9 @@ def get_norm(norm=None, vmin=None, vmax=None):
             return SymLogNorm(linthresh=1e-2, vmin=vmin, vmax=vmax, base=10)
         elif norm_lowercase == "linear":
             return Normalize(vmin=vmin, vmax=vmax)
+        else:
+            raise RuntimeError("Unknown norm keyword '{}'.\nAvailable keywords"
+                               " are 'log', 'symlog' and 'linear'.".format(norm))
     else:
         return norm
 
