@@ -71,20 +71,21 @@ def read_binary_data(content=None,
         "s": 1
     }
 
-    offset = 0
-    for key in offsets:
-        offset += offsets[key] * byte_size[key]
-    # if offset is None:
-    #     offset = 4*ninteg + 8*(nlines+nfloat+nlongi) + nstrin + nquadr*16
-    if skip_head:
-        offset += 4  # + correction
-
-    # byte_size = {"b": 1 , "h": 2, "i": 4, "q": 8, "f": 4, "d": 8, "e": 8}
     if len(fmt) == 1:
         mult = 1
     else:
         mult = int(fmt[:-1])
     pack_size = mult * byte_size[fmt[-1]]
+
+    offset = 0
+    if offsets is not None:
+        for key in offsets:
+            offset += offsets[key] * byte_size[key]
+        if increment:
+            offsets[fmt[-1]] += mult
+        offsets["n"] += 1
+    if skip_head:
+        offset += 4
 
     if increment:
         offsets[fmt[-1]] += mult
