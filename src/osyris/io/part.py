@@ -11,7 +11,7 @@ class PartReader(Reader):
     def __init__(self):
         super().__init__(kind=ReaderKind.PART)
 
-    def initialize(self, meta, units, select):
+    def initialize(self, meta, units, select, ramses_ism):
         self.initialized = False
         if select is False:
             return
@@ -32,7 +32,8 @@ class PartReader(Reader):
         self.descriptor_to_variables(descriptor=descriptor,
                                      meta=meta,
                                      units=units,
-                                     select=select)
+                                     select=select,
+                                     ramses_ism=ramses_ism)
         self.initialized = True
 
     def read_header(self, info):
