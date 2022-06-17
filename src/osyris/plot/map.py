@@ -337,6 +337,7 @@ def map(*layers,
 
     # Apply operation along depth
     binned = getattr(binned, operation)(axis=1)
+    print(binned)
 
     # Handle thick maps
     if thick and (operation == "sum"):
@@ -352,7 +353,6 @@ def map(*layers,
     counter = 0
     for ind in range(len(to_render)):
         if scalar_layer[ind]:
-            print(mask)
             to_render[ind]["data"] = ma.masked_where(mask,
                                                      binned[counter, ...],
                                                      copy=False)
