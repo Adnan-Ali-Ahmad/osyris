@@ -24,6 +24,7 @@ class HydroReader(Reader):
             return
 
         if ramses_ism:
+            print(desc_from_file)
             descriptor = {
                 desc_from_file[i, 1].strip(): 'd'
                 for i in range(len(desc_from_file))
