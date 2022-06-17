@@ -22,61 +22,29 @@ class Reader():
         self.initialized = False
         self.kind = kind
 
-    def descriptor_to_variables(self, descriptor, meta, units, select, ramses_ism):
+    def descriptor_to_variables(self, descriptor, meta, units, select):
         drop_others = False
         if isinstance(select, dict):
             for key, value in select.items():
                 if value is True:
                     drop_others = True
 
-        print(descriptor)
-        for g in descriptor:
-            print(g)
-
-        try:
-            if ramses_ism:
-                f = open(descriptor, "r")
-                data = f.readlines()
-                f.close()
-            else:
-                pass
-        except IOError:
-            return
-
-        if ramses_ism:
-            nvar = int(data[0].split()[-1])
-            for i in range(nvar):
-                key = data[i + 1].split()[-1]
-                read = True
-                if isinstance(select, bool):
-                    read = select
-                elif key in select:
-                    if isinstance(select[key], bool):
-                        read = select[key]
-                self.variables[key] = {
-                    "read": read,
-                    "type": "d",
-                    "buffer": None,
-                    "pieces": {},
-                    "unit": units[key]
-                }
-        else:
-            for key in descriptor:
-                read = True
-                if isinstance(select, bool):
-                    read = select
-                elif key in select:
-                    if isinstance(select[key], bool):
-                        read = select[key]
-                elif drop_others:
-                    read = False
-                self.variables[key] = {
-                    "read": read,
-                    "type": descriptor[key],
-                    "buffer": None,
-                    "pieces": {},
-                    "unit": units[key]
-                }
+        for key in descriptor:
+            read = True
+            if isinstance(select, bool):
+                read = select
+            elif key in select:
+                if isinstance(select[key], bool):
+                    read = select[key]
+            elif drop_others:
+                read = False
+            self.variables[key] = {
+                "read": read,
+                "type": descriptor[key],
+                "buffer": None,
+                "pieces": {},
+                "unit": units[key]
+            }
 
     def allocate_buffers(self, ncache, twotondim):
         for item in self.variables.values():

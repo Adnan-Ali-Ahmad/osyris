@@ -23,10 +23,16 @@ class HydroReader(Reader):
         except IOError:
             return
 
-        descriptor = {
-            desc_from_file[i, 1].strip(): desc_from_file[i, 2].strip()
-            for i in range(len(desc_from_file))
-        }
+        if ramses_ism:
+            descriptor = {
+                desc_from_file[i, 1].strip(): 'd'
+                for i in range(len(desc_from_file))
+            }
+        else:
+            descriptor = {
+                desc_from_file[i, 1].strip(): desc_from_file[i, 2].strip()
+                for i in range(len(desc_from_file))
+            }
 
         self.descriptor_to_variables(descriptor=descriptor,
                                      meta=meta,
