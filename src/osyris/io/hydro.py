@@ -19,21 +19,23 @@ class HydroReader(Reader):
         # and select the ones to be read if specified by user
         fname = os.path.join(meta["infile"], "hydro_file_descriptor.txt")
         try:
-            desc_from_file = np.loadtxt(fname, dtype=str, delimiter=",")
+            if ramses_ism:
+                desc_from_file = []
+                with open(fname, "r") as f:
+                    data = f.readlines()
+                nvar = int(data[0].split()[-1])
+                for i in range(nvar):
+                    comp = [i + 1, data[i + 1].split()[-1], "d"]
+                    desc_from_file.append(comp)
+            else:
+                desc_from_file = np.loadtxt(fname, dtype=str, delimiter=",")
         except IOError:
             return
 
-        if ramses_ism:
-            print(desc_from_file)
-            descriptor = {
-                desc_from_file[i, 1].strip(): 'd'
-                for i in range(len(desc_from_file))
-            }
-        else:
-            descriptor = {
-                desc_from_file[i, 1].strip(): desc_from_file[i, 2].strip()
-                for i in range(len(desc_from_file))
-            }
+        descriptor = {
+            desc_from_file[i, 1].strip(): desc_from_file[i, 2].strip()
+            for i in range(len(desc_from_file))
+        }
 
         self.descriptor_to_variables(descriptor=descriptor,
                                      meta=meta,
