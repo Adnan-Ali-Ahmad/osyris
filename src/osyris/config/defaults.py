@@ -63,6 +63,7 @@ def configure_units(units, unit_d, unit_l, unit_t):
         'pressure': energy,
         'radiative_energy': energy,
         'radiative_energy_*': energy,
+        'rad_force_*': acceleration,
         'time': time,
         'length': length,
         'x': length,
