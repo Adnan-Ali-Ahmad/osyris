@@ -105,6 +105,7 @@ def get_opacities(dataset, fname, variables={"kappa_p":"cm^2/g","kappa_r":"cm^2/
 
 	if "radiative_temperature" not in dataset["hydro"]:
 		print("Radiative temperature is not defined. Computing it now...", end="")
+		print(units)
 		dataset["hydro"]["radiative_temperature"] = values = (dataset["hydro"]["radiative_energy_1"]/units["radiation_constant"])**.25
 		print(" done!")
 	pts = np.array([np.log10(dataset["hydro"]["density"].values),np.log10(dataset["hydro"]["temperature"].values),np.log10(dataset["hydro"]["radiative_temperature"].values)]).T
