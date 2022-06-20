@@ -19,6 +19,8 @@ from .. import units
 from ..io import utils
 from scipy.interpolate import RegularGridInterpolator
 
+# flake8: noqa
+
 def ism_interpolate(table_container=None, values=[0], points=[0], in_log=False):
 
 	func = RegularGridInterpolator(table_container["grid"], values)
@@ -105,8 +107,7 @@ def get_opacities(dataset, fname, variables={"kappa_p":"cm^2/g","kappa_r":"cm^2/
 
 	if "radiative_temperature" not in dataset["hydro"]:
 		print("Radiative temperature is not defined. Computing it now...", end="")
-		print(units)
-		dataset["hydro"]["radiative_temperature"] = values = (dataset["hydro"]["radiative_energy_1"]/units["radiation_constant"])**.25
+		dataset["hydro"]["radiative_temperature"] = values = (dataset["hydro"]["radiative_energy_1"]/units("radiation_constant"))**.25
 		print(" done!")
 	pts = np.array([np.log10(dataset["hydro"]["density"].values),np.log10(dataset["hydro"]["temperature"].values),np.log10(dataset["hydro"]["radiative_temperature"].values)]).T
 	for var in variables:
