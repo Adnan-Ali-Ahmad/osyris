@@ -95,10 +95,11 @@ def read_opacity_table(fname, ngrp):
 
 	return theTable
 
-def get_opacities(dataset, fname, variables={"kappa_p":"cm^2/g","kappa_r":"cm^2/g"}):
+def get_opacities(dataset, fname, variables=["kappa_p", "kappa_r"]):
 	"""
 	Create opacity variables from interpolation of opacity table values in fname.
 	"""
+	default_units = {"kappa_p":"cm^2/g","kappa_r":"cm^2/g"}
 
 	ngrp = dataset.meta["ngrp"]
 	#if "opacity_table" not in dataset.meta:
@@ -123,7 +124,7 @@ def get_opacities(dataset, fname, variables={"kappa_p":"cm^2/g","kappa_r":"cm^2/
 			print("Interpolating "+var+"_{}...".format(i), end="")
 			vals = ism_interpolate(dataset.meta["opacity_table"], dataset.meta["opacity_table"]["all_kappa_r"][i-1], pts)
 			print(" done!")
-			dataset["hydro"][new_var] = Array(values = vals, unit = variables[var])
+			dataset["hydro"][new_var] = Array(values = vals, unit = default_units[var])
 
 	return
 
@@ -179,10 +180,12 @@ def read_eos_table(fname):
 
 	return theTable
 
-def get_eos(dataset, fname, variables={"rho_eos":"g/cm^3", "ener_eos":"erg","temp_eos":"K","pres_eos":"dyn/cm^2","s_eos":"erg/K/g","cs_eos":"cm/s","xH_eos":None,"xH2_eos":None,"xHe_eos":None,"xHep_eos":None}):
+def get_eos(dataset, fname, variables=["rho_eos", "ener_eos", "temp_eos", "pres_eos", "s_eos", "cs_eos", "xH_eos", "xH2_eos", "xHe_eos", "xHep_eos"]):
 	"""
 	Create EOS variables from interpolation of eos table values in fname.
 	"""
+
+	default_units = {"rho_eos":"g/cm^3", "ener_eos":"erg","temp_eos":"K","pres_eos":"dyn/cm^2","s_eos":"erg/K/g","cs_eos":"cm/s","xH_eos":None,"xH2_eos":None,"xHe_eos":None,"xHep_eos":None}
 
 	if dataset.meta["eos"] == 0:
 		print("Simulation data did not use a tabulated EOS. Exiting.")
@@ -194,7 +197,7 @@ def get_eos(dataset, fname, variables={"rho_eos":"g/cm^3", "ener_eos":"erg","tem
 	for var in variables:
 		print("Interpolating "+var+"...", end="")
 		vals = ism_interpolate(dataset.meta["eos_table"],np.log10(dataset.meta["eos_table"][var]),pts)
-		dataset["hydro"][var] = Array(values = vals, unit = variables[var])
+		dataset["hydro"][var] = Array(values = vals, unit = default_units[var])
 		print(" done!")
 
 
