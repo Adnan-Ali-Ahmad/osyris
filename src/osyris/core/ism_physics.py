@@ -30,7 +30,8 @@ def ism_interpolate(table_container=None, values=[0], points=[0], in_log=False):
 	else:
 		return np.power(10.0, func(points))
 
-def read_opacity_table(fname):
+
+def read_opacity_table(fname, ngrp):
 	"""
 	Read binary opacity table in fname.
 	"""
@@ -47,46 +48,43 @@ def read_opacity_table(fname):
 	offsets = {"i":0, "n":0, "d":0}
 
 	# Get table dimensions
-	theTable["nx"] = np.array(utils.read_binary_data(fmt="3i",content=data,increment=False))
-
+	nx,ny,nz = np.array(read_binary_data(fmt="3i",content=data,increment=False))
+	theTable["nx"] = np.array((ngrp, nx, ny, nz))
 	# Read table coordinates:
 
 	# x: density
 	offsets["i"] += 3
 	offsets["n"] += 9
 	offsets["d"] += 1
-	theTable["dens"] = utils.read_binary_data(fmt="%id"%theTable["nx"][0],content=data,offsets=offsets,increment=False)
+	theTable["dens"] = read_binary_data(fmt="%id"%theTable["nx"][1],content=data,offsets=offsets,increment=False)
 	offsets["n"] -= 1
 
 	# y: gas temperature
-	offsets["n"] += theTable["nx"][0]
+	offsets["n"] += theTable["nx"][1]
 	offsets["d"] += 1
-	theTable["tgas"] = utils.read_binary_data(fmt="%id"%theTable["nx"][1],content=data,offsets=offsets,increment=False)
+	theTable["tgas"] = read_binary_data(fmt="%id"%theTable["nx"][2],content=data,offsets=offsets,increment=False)
 	offsets["n"] -= 1
 
 	# z: radiation temperature
-	offsets["n"] += theTable["nx"][1]
+	offsets["n"] += theTable["nx"][2]
 	offsets["d"] += 1
-	theTable["trad"] = utils.read_binary_data(fmt="%id"%theTable["nx"][2],content=data,offsets=offsets,increment=False)
+	theTable["trad"] = read_binary_data(fmt="%id"%theTable["nx"][3],content=data,offsets=offsets,increment=False)
 	offsets["n"] -= 1
 
 	# Now read opacities
 	array_size = np.prod(theTable["nx"])
 	array_fmt  = "%id" % array_size
 
-	# Planck mean
-	offsets["n"] += theTable["nx"][2]
+	offsets["n"] += theTable["nx"][3]
 	offsets["d"] += 1
-	theTable["kappa_p"] = np.reshape(utils.read_binary_data(fmt=array_fmt,content=data, \
-				offsets=offsets,increment=False),theTable["nx"],order="F")
+	theTable["all_kappa_p"] = np.reshape(read_binary_data(fmt=array_fmt,content=data, \
+						offsets=offsets,increment=False),theTable["nx"],order="F")
 	offsets["n"] -= 1
 
-	# Rosseland mean
 	offsets["n"] += array_size
 	offsets["d"] += 1
-	theTable["kappa_r"] = np.reshape(utils.read_binary_data(fmt=array_fmt,content=data, \
-				offsets=offsets,increment=False),theTable["nx"],order="F")
-	offsets["n"] -= 1
+	theTable["all_kappa_r"] = np.reshape(read_binary_data(fmt=array_fmt,content=data, \
+						offsets=offsets,increment=False),theTable["nx"],order="F")
 
 	del data
 
@@ -102,20 +100,30 @@ def get_opacities(dataset, fname, variables={"kappa_p":"cm^2/g","kappa_r":"cm^2/
 	Create opacity variables from interpolation of opacity table values in fname.
 	"""
 
-	if "opacity_table" not in dataset.meta:
-		dataset.meta["opacity_table"] = read_opacity_table(fname=fname)
+	ngrp = dataset.meta["ngrp"]
+	#if "opacity_table" not in dataset.meta:
+	dataset.meta["opacity_table"] = read_opacity_table(fname, ngrp)
 
-	if "radiative_temperature" not in dataset["hydro"]:
-		print("Radiative temperature is not defined. Computing it now...", end="")
-		rc = 1*units("radiation_constant")
-		dataset["hydro"]["radiative_temperature"] = ((dataset["hydro"]["radiative_energy_1"]/rc)**.25).to("K")
-		print(" done!")
-	pts = np.array([np.log10(dataset["hydro"]["density"].values),np.log10(dataset["hydro"]["temperature"].values),np.log10(dataset["hydro"]["radiative_temperature"].values)]).T
-	for var in variables:
-		print("Interpolating "+var+"...", end="")
-		vals = ism_interpolate(dataset.meta["opacity_table"], dataset.meta["opacity_table"][var], pts)
-		print(" done!")
-		dataset["hydro"][var] = Array(values = vals, unit = variables[var])
+	for i in range(1, ngrp+1):
+		if "radiative_temperature_{}".format(i) not in dataset["hydro"]:
+			print("radiative_temperature_{} is not defined. Computing it now...".format(i), end="")
+			rc = 1*units("radiation_constant")
+			dataset["hydro"]["radiative_temperature_{}".format(i)] = ((dataset["hydro"]["radiative_energy_{}".format(i)]/rc)**.25).to("K")
+			print(" done!")
+		# check if radiative temperature out of grid bounds:
+		rad_temp = np.copy(dataset["hydro"]["radiative_temperature_{}".format(i)].values)
+		is_out_of_bounds = np.log10(rad_temp) < np.min(dataset.meta["opacity_table"]["grid"][2])
+		if np.any(is_out_of_bounds):
+			print("WARNING: Radiative temperature for group {} is out of bounds!".format(i))
+			# proceed to fill those values with min grid trad
+			rad_temp[is_out_of_bounds] = 10**np.min(dataset.meta["opacity_table"]["grid"][2])
+		pts = np.array([np.log10(dataset["hydro"]["density"].values),np.log10(dataset["hydro"]["temperature"].values),np.log10(rad_temp)]).T
+		for j,var in enumerate(variables):
+			new_var = var + "_{}".format(i)
+			print("Interpolating "+var+"_{}...".format(i), end="")
+			vals = ism_interpolate(dataset.meta["opacity_table"], dataset.meta["opacity_table"]["all_kappa_r"][i-1], pts)
+			print(" done!")
+			dataset["hydro"][new_var] = Array(values = vals, unit = variables[var])
 
 	return
 
