@@ -48,7 +48,7 @@ def read_opacity_table(fname, ngrp):
 	offsets = {"i":0, "n":0, "d":0}
 
 	# Get table dimensions
-	nx,ny,nz = np.array(read_binary_data(fmt="3i",content=data,increment=False))
+	nx,ny,nz = np.array(utils.read_binary_data(fmt="3i",content=data,increment=False))
 	theTable["nx"] = np.array((ngrp, nx, ny, nz))
 	# Read table coordinates:
 
@@ -56,19 +56,19 @@ def read_opacity_table(fname, ngrp):
 	offsets["i"] += 3
 	offsets["n"] += 9
 	offsets["d"] += 1
-	theTable["dens"] = read_binary_data(fmt="%id"%theTable["nx"][1],content=data,offsets=offsets,increment=False)
+	theTable["dens"] = utils.read_binary_data(fmt="%id"%theTable["nx"][1],content=data,offsets=offsets,increment=False)
 	offsets["n"] -= 1
 
 	# y: gas temperature
 	offsets["n"] += theTable["nx"][1]
 	offsets["d"] += 1
-	theTable["tgas"] = read_binary_data(fmt="%id"%theTable["nx"][2],content=data,offsets=offsets,increment=False)
+	theTable["tgas"] = utils.read_binary_data(fmt="%id"%theTable["nx"][2],content=data,offsets=offsets,increment=False)
 	offsets["n"] -= 1
 
 	# z: radiation temperature
 	offsets["n"] += theTable["nx"][2]
 	offsets["d"] += 1
-	theTable["trad"] = read_binary_data(fmt="%id"%theTable["nx"][3],content=data,offsets=offsets,increment=False)
+	theTable["trad"] = utils.read_binary_data(fmt="%id"%theTable["nx"][3],content=data,offsets=offsets,increment=False)
 	offsets["n"] -= 1
 
 	# Now read opacities
@@ -77,13 +77,13 @@ def read_opacity_table(fname, ngrp):
 
 	offsets["n"] += theTable["nx"][3]
 	offsets["d"] += 1
-	theTable["all_kappa_p"] = np.reshape(read_binary_data(fmt=array_fmt,content=data, \
+	theTable["all_kappa_p"] = np.reshape(utils.read_binary_data(fmt=array_fmt,content=data, \
 						offsets=offsets,increment=False),theTable["nx"],order="F")
 	offsets["n"] -= 1
 
 	offsets["n"] += array_size
 	offsets["d"] += 1
-	theTable["all_kappa_r"] = np.reshape(read_binary_data(fmt=array_fmt,content=data, \
+	theTable["all_kappa_r"] = np.reshape(utils.read_binary_data(fmt=array_fmt,content=data, \
 						offsets=offsets,increment=False),theTable["nx"],order="F")
 
 	del data
