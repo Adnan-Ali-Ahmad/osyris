@@ -10,7 +10,6 @@ from . import utils
 
 
 class SinkReader:
-
     def __init__(self):
         self.kind = ReaderKind.SINK
         self.initialized = False
@@ -31,32 +30,47 @@ class SinkReader:
             # This is an empty sink file
             return sink
         else:
-            sink_data = np.atleast_2d(np.loadtxt(sink_file, delimiter=',', skiprows=2))
+            sink_data = np.atleast_2d(
+                np.loadtxt(sink_file, delimiter=',', skiprows=0 if ramses_ism else 2))
 
-        with open(sink_file, 'r') as f:
-            key_list = f.readline()
-            unit_combinations = f.readline()
+        if ramses_ism:
+            variables = utils.read_sink_info(sink_file.replace(".csv", ".info"))
+            key_list = list(variables.keys())
+            print(key_list)
+            unit_list = list(variables.values())
+        else:
+            with open(sink_file, 'r') as f:
+                key_list = f.readline()
+                unit_combinations = f.readline()
+            key_list = key_list.lstrip(' #').rstrip('\n').split(',')
+            unit_combinations = unit_combinations.lstrip(' #').rstrip('\n').split(',')
 
-        key_list = key_list.lstrip(' #').rstrip('\n').split(',')
-        unit_combinations = unit_combinations.lstrip(' #').rstrip('\n').split(',')
-
-        # Parse units
-        unit_list = []
-        m = units['mass']  # noqa: F841
-        l = units['length']  # noqa: F841, E741
-        t = units['time']  # noqa: F841
-        for u in unit_combinations:
-            if u.strip().replace("[", "").replace("]", "") == '1':
-                unit_list.append(1.0 * ureg('dimensionless'))
-            else:
-                if all(x in u for x in ["[", "]"]):
-                    # Legacy sink format quantities are not in code units
-                    unit_list.append(1.0 * ureg(u.replace("[", "").replace("]", "")))
+            # Parse units
+            unit_list = []
+            m = units['mass']  # noqa: F841
+            l = units['length']  # noqa: F841, E741
+            t = units['time']  # noqa: F841
+            for u in unit_combinations:
+                if u.strip().replace("[", "").replace("]", "") == '1':
+                    unit_list.append(1.0 * ureg('dimensionless'))
                 else:
-                    unit_list.append(eval(u.replace(' ', '*')))
+                    if all(x in u for x in ["[", "]"]):
+                        # Legacy sink format quantities are not in code units
+                        unit_list.append(1.0 * ureg(u.replace("[", "").replace("]", "")))
+                    else:
+                        unit_list.append(eval(u.replace(' ', '*')))
 
         sink = Datagroup()
         for i, (key, unit) in enumerate(zip(key_list, unit_list)):
-            sink[key] = Array(values=sink_data[:, i] * unit.magnitude, unit=unit.units)
+            if len(sink_data.shape) == 1:  #  if only 1 sink is present
+                sink[key] = Array(values=sink_data[i] * unit.magnitude, unit=unit.units)
+            else:
+                sink[key] = Array(values=sink_data[:, i] * unit.magnitude, unit=unit.units)
+            if ramses_ism and key in ["x","y","z"]:
+                sink[key] = (sink[key]*meta["unit_l"])
+            elif ramses_ism and key in ["vx","vy","vz"]:
+                sink[key] = (sink[key]*meta["unit_l"]/meta['unit_t'])
+            elif not ramses_ism and unit_combinations[i] == 'l':
+                sink[key] = sink[key]
         utils.make_vector_arrays(sink, ndim=meta["ndim"])
         return sink
