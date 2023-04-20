@@ -10,6 +10,7 @@ from . import utils
 
 
 class SinkReader:
+
     def __init__(self):
         self.kind = ReaderKind.SINK
         self.initialized = False
@@ -36,7 +37,6 @@ class SinkReader:
         if ramses_ism:
             variables = utils.read_sink_info(sink_file.replace(".csv", ".info"))
             key_list = list(variables.keys())
-            print(key_list)
             unit_list = list(variables.values())
         else:
             with open(sink_file, 'r') as f:
@@ -56,20 +56,22 @@ class SinkReader:
                 else:
                     if all(x in u for x in ["[", "]"]):
                         # Legacy sink format quantities are not in code units
-                        unit_list.append(1.0 * ureg(u.replace("[", "").replace("]", "")))
+                        unit_list.append(1.0 *
+                                         ureg(u.replace("[", "").replace("]", "")))
                     else:
                         unit_list.append(eval(u.replace(' ', '*')))
 
         sink = Datagroup()
         for i, (key, unit) in enumerate(zip(key_list, unit_list)):
-            if len(sink_data.shape) == 1:  #  if only 1 sink is present
+            if len(sink_data.shape) == 1:  # if only 1 sink is present
                 sink[key] = Array(values=sink_data[i] * unit.magnitude, unit=unit.units)
             else:
-                sink[key] = Array(values=sink_data[:, i] * unit.magnitude, unit=unit.units)
-            if ramses_ism and key in ["x","y","z"]:
-                sink[key] = (sink[key]*meta["unit_l"])
-            elif ramses_ism and key in ["vx","vy","vz"]:
-                sink[key] = (sink[key]*meta["unit_l"]/meta['unit_t'])
+                sink[key] = Array(values=sink_data[:, i] * unit.magnitude,
+                                  unit=unit.units)
+            if ramses_ism and key in ["x", "y", "z"]:
+                sink[key] = (sink[key] * meta["unit_l"])
+            elif ramses_ism and key in ["vx", "vy", "vz"]:
+                sink[key] = (sink[key] * meta["unit_l"] / meta['unit_t'])
             elif not ramses_ism and unit_combinations[i] == 'l':
                 sink[key] = sink[key]
         utils.make_vector_arrays(sink, ndim=meta["ndim"])
