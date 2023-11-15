@@ -336,7 +336,7 @@ def map(*layers,
                               ndim=ndim)
 
     # Apply operation along depth
-    binned = getattr(binned, operation)(axis=1)
+    binned = getattr(np, operation)(binned, axis=1)
 
     # Handle thick maps
     if thick and (operation == "sum"):
