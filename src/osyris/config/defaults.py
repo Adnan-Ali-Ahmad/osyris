@@ -34,6 +34,7 @@ def configure_units(units, unit_d, unit_l, unit_t):
     mass = density * length**3
     temperature = 1.0 * units("K")
     grav_potential = velocity**2
+    grad_p = energy/length
 
     library = {
         'unit_d': unit_d,
@@ -64,6 +65,7 @@ def configure_units(units, unit_d, unit_l, unit_t):
         'radiative_energy': energy,
         'radiative_energy_*': energy,
         'rad_force_*': acceleration,
+        'grad_P_*': grad_p,
         'time': time,
         'length': length,
         'x': length,
