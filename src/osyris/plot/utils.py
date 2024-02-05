@@ -5,7 +5,7 @@ import numpy as np
 from numba import njit, prange
 
 
-@njit(parallel=True)
+@njit(target_backend='cuda')
 def evaluate_on_grid(cell_positions_in_new_basis_x, cell_positions_in_new_basis_y,
                      cell_positions_in_new_basis_z, cell_positions_in_original_basis_x,
                      cell_positions_in_original_basis_y,
@@ -67,7 +67,7 @@ def evaluate_on_grid(cell_positions_in_new_basis_x, cell_positions_in_new_basis_
     return out
 
 
-@njit(parallel=True)
+@njit(target_backend='cuda')
 def hist2d(x, y, values, xmin, xmax, nx, ymin, ymax, ny):
 
     out = np.zeros(shape=(values.shape[0], ny, nx), dtype=np.float64)
