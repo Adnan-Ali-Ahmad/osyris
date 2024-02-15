@@ -166,7 +166,7 @@ class Loader:
                     reader.read_level_header(ilevel, twotondim)
 
                 # Loop over domains
-                for domain in range(readers["amr"].meta["nboundary"] + meta["ncpu"]):
+                for domain in range(int(readers["amr"].meta["nboundary"] + meta["ncpu"])):
 
                     ncache = readers["amr"].meta["ngridlevel"][domain, ilevel]
 
