@@ -147,7 +147,6 @@ class AmrReader(Reader):
     def read_variables(self, ncache, ind, ilevel, cpuid, info):
         begin = ind * ncache
         end = (ind + 1) * ncache
-        print(begin, "---", type(begin), "---", end, "---", type(end))
         self.son[begin:end] = np.array(
             utils.read_binary_data(fmt="{}i".format(ncache),
                                    content=self.bytes,
