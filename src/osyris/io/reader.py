@@ -50,8 +50,7 @@ class Reader():
     def allocate_buffers(self, ncache, twotondim):
         for item in self.variables.values():
             if item["read"]:
-                print(ncache, "---", twotondim, "---", [ncache * twotondim], "---", np.dtype(item["type"]), "---", item["type"])
-                item["buffer"] = Array(values=np.empty([ncache * twotondim],
+                item["buffer"] = Array(values=np.empty([int(ncache * twotondim)],
                                                        dtype=np.dtype(item["type"])),
                                        unit=item["unit"].units)
 
