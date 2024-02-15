@@ -132,6 +132,7 @@ def read_binary_data(content=None,
     if skip_head:
         offset += 4
 
+    print(type(content), "---", offset, "---", pack_size, "---", type(offset), "---", type(pack_size))
     return struct.unpack(fmt, content[offset:offset + pack_size])
 
 
