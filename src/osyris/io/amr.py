@@ -139,7 +139,7 @@ class AmrReader(Reader):
         self.offsets['i'] += ncache * 3
         self.offsets['n'] += 3
         for n in range(ndim):
-            print(type(self.xg), "---", n, "---", type(n))
+            print(type(self.xg[:, n]))
             self.xg[:, n] = utils.read_binary_data(fmt="{}d".format(ncache),
                                                    content=self.bytes,
                                                    offsets=self.offsets)
