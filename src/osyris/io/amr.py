@@ -35,9 +35,9 @@ class AmrReader(Reader):
 
     def allocate_buffers(self, ncache, twotondim):
         super().allocate_buffers(ncache, twotondim)
-        self.xg = np.zeros([ncache, 3], dtype=np.float64)
-        self.son = np.zeros([ncache * twotondim], dtype=np.int32)
-        self.ref = np.zeros([ncache * twotondim], dtype=bool)
+        self.xg = np.zeros([int(ncache), 3], dtype=np.float64)
+        self.son = np.zeros([int(ncache * twotondim)], dtype=np.int32)
+        self.ref = np.zeros([int(ncache * twotondim)], dtype=bool)
 
     def read_header(self, info):
         # nx,ny,nz
