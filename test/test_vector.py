@@ -3,7 +3,7 @@
 from common import vectorclose, vectorequal, arrayequal, arrayclose
 from osyris import Array, Vector, Dataset, Datagroup, units
 from copy import copy, deepcopy
-import numpy as np
+import cupy as np
 import pytest
 
 

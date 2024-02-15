@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Osyris contributors (https://github.com/osyris-project/osyris)
 
-import numpy as np
+import cupy as np
 from numba import njit, prange
 
 
-@njit(target_backend='cuda')
+@njit(parallel=True)
 def evaluate_on_grid(cell_positions_in_new_basis_x, cell_positions_in_new_basis_y,
                      cell_positions_in_new_basis_z, cell_positions_in_original_basis_x,
                      cell_positions_in_original_basis_y,
@@ -67,7 +67,7 @@ def evaluate_on_grid(cell_positions_in_new_basis_x, cell_positions_in_new_basis_
     return out
 
 
-@njit(target_backend='cuda')
+@njit(parallel=True)
 def hist2d(x, y, values, xmin, xmax, nx, ymin, ymax, ny):
 
     out = np.zeros(shape=(values.shape[0], ny, nx), dtype=np.float64)

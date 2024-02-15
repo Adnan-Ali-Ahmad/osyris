@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Osyris contributors (https://github.com/osyris-project/osyris)
-import numpy as np
+import cupy as np
 from pint import Quantity
 from pint.errors import DimensionalityError
 from .base import Base

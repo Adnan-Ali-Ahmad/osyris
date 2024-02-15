@@ -3,7 +3,7 @@
 from common import arrayclose, arraytrue, arrayequal
 from osyris import Array, units
 from copy import copy, deepcopy
-import numpy as np
+import cupy as np
 from pint.errors import DimensionalityError
 import pytest
 

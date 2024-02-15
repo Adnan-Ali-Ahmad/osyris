@@ -12,7 +12,7 @@ To do:
 
 import struct
 import os
-import numpy as np
+import cupy as np
 from ..core import Array
 from .. import config
 from .. import units

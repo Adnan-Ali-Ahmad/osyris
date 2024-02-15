@@ -3,7 +3,7 @@
 
 from ..core import Vector
 
-import numpy as np
+import cupy as np
 
 
 def _perpendicular_vector(v):

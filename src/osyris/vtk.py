@@ -5,7 +5,7 @@
 
 import sys
 import struct
-import numpy as np
+import cupy as np
 
 
 def to_vtk(holder, fname="osyris_data.vtu", dx=None, dy=None, dz=None):

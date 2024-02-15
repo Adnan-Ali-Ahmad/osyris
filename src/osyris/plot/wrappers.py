@@ -7,7 +7,7 @@ import io
 import matplotlib.pyplot as plt
 from matplotlib.cm import ScalarMappable
 from matplotlib.collections import PatchCollection
-import numpy as np
+import cupy as np
 from pint import Quantity
 
 

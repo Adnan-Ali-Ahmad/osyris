@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Osyris contributors (https://github.com/osyris-project/osyris)
 
 from .tools import make_label
-import numpy as np
+import cupy as np
 
 
 class Base:

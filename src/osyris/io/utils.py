@@ -4,7 +4,7 @@
 import glob
 import os
 import struct
-import numpy as np
+import cupy as np
 from ..core import Vector
 from .. import units as ureg
 
