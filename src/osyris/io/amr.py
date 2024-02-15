@@ -57,7 +57,7 @@ class AmrReader(Reader):
         [self.meta["nboundary"]] = np.array(
             utils.read_binary_data(fmt="i", content=self.bytes, offsets=self.offsets))
         self.meta["ngridlevel"] = np.zeros(
-            [info["ncpu"] + self.meta["nboundary"], info["levelmax"]], dtype=np.int32)
+            [int(info["ncpu"] + self.meta["nboundary"]), int(info["levelmax"])], dtype=np.int32)
 
         # noutput
         self.offsets["i"] += 1
