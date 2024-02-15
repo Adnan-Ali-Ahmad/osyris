@@ -7,7 +7,6 @@ from . import utils
 
 
 class AmrReader(Reader):
-
     def __init__(self):
         super().__init__(kind=ReaderKind.AMR)
         self.cpu_list = None
@@ -43,9 +42,8 @@ class AmrReader(Reader):
         # nx,ny,nz
         self.offsets["i"] += 2
         self.offsets["n"] += 2
-        [nx, ny, nz] = utils.read_binary_data(fmt="3i",
-                                              content=self.bytes,
-                                              offsets=self.offsets)
+        [nx, ny, nz] = np.array(
+            utils.read_binary_data(fmt="3i", content=self.bytes, offsets=self.offsets))
         ncoarse = nx * ny * nz
         self.meta["xbound"] = [
             float(int(nx / 2)),
@@ -56,9 +54,8 @@ class AmrReader(Reader):
         # nboundary
         self.offsets["i"] += 2
         self.offsets["n"] += 2
-        [self.meta["nboundary"]] = utils.read_binary_data(fmt="i",
-                                                          content=self.bytes,
-                                                          offsets=self.offsets)
+        [self.meta["nboundary"]] = np.array(
+            utils.read_binary_data(fmt="i", content=self.bytes, offsets=self.offsets))
         self.meta["ngridlevel"] = np.zeros(
             [info["ncpu"] + self.meta["nboundary"], info["levelmax"]], dtype=np.int32)
 
@@ -66,9 +63,8 @@ class AmrReader(Reader):
         self.offsets["i"] += 1
         self.offsets["n"] += 2
         self.offsets["d"] += 1
-        [noutput] = utils.read_binary_data(fmt="i",
-                                           content=self.bytes,
-                                           offsets=self.offsets)
+        [noutput] = np.array(
+            utils.read_binary_data(fmt="i", content=self.bytes, offsets=self.offsets))
         # dtold, dtnew
         self.offsets["i"] += 2
         self.offsets["n"] += 3
@@ -112,11 +108,11 @@ class AmrReader(Reader):
         # Determine bound key precision
         self.offsets["i"] += 5
         self.offsets["s"] += 128
-        [key_size] = utils.read_binary_data(fmt="i",
+        [key_size] = np.array(utils.read_binary_data(fmt="i",
                                             content=self.bytes,
                                             offsets=self.offsets,
                                             skip_head=False,
-                                            increment=False)
+                                            increment=False))
 
         # Offset for AMR
         self.offsets["i"] += 3 * ncoarse
@@ -139,9 +135,10 @@ class AmrReader(Reader):
         self.offsets['i'] += ncache * 3
         self.offsets['n'] += 3
         for n in range(ndim):
-            self.xg[:, n] = np.array(utils.read_binary_data(fmt="{}d".format(ncache),
-                                                   content=self.bytes,
-                                                   offsets=self.offsets))
+            self.xg[:, n] = np.array(
+                utils.read_binary_data(fmt="{}d".format(ncache),
+                                       content=self.bytes,
+                                       offsets=self.offsets))
 
         # son indices
         self.offsets['i'] += ncache * (1 + 2 * ndim)
@@ -151,9 +148,10 @@ class AmrReader(Reader):
         begin = ind * ncache
         end = (ind + 1) * ncache
         print(begin, "---", type(begin), "---", end, "---", type(end))
-        self.son[begin:end] = utils.read_binary_data(fmt="{}i".format(ncache),
-                                                     content=self.bytes,
-                                                     offsets=self.offsets)
+        self.son[begin:end] = np.array(
+            utils.read_binary_data(fmt="{}i".format(ncache),
+                                   content=self.bytes,
+                                   offsets=self.offsets))
 
         if self.variables["level"]["read"]:
             self.variables["level"]["buffer"]._array[begin:end] = ilevel + 1
