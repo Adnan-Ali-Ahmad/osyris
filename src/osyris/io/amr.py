@@ -148,8 +148,9 @@ class AmrReader(Reader):
         self.offsets['n'] += 1 + 2 * ndim
 
     def read_variables(self, ncache, ind, ilevel, cpuid, info):
-        begin = int(ind * ncache)
-        end = int((ind + 1) * ncache)
+        begin = ind * ncache
+        end = (ind + 1) * ncache
+        print(begin, "---", type(begin), "---", end, "---", type(end))
         self.son[begin:end] = utils.read_binary_data(fmt="{}i".format(ncache),
                                                      content=self.bytes,
                                                      offsets=self.offsets)
