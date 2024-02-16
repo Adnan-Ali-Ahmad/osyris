@@ -23,8 +23,7 @@ def _binary_op(op, lhs, rhs, strict=True, **kwargs):
             rhs = rhs.to(lhs.unit)
         except DimensionalityError:
             pass
-    print(type(lhs), type(rhs))
-    return op(lhs, rhs, **kwargs)
+    return op(lhs.values, rhs.values, **kwargs)
 
 
 class Array(Base):
