@@ -142,7 +142,7 @@ class Array(Base):
         return np.reciprocal(self / other)
 
     def __pow__(self, number):
-        return np.power(self, number)
+        return np.power(self, number.values)
 
     def __neg__(self):
         return np.negative(self)
