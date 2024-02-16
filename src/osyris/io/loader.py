@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Osyris contributors (https://github.com/osyris-project/osyris)
 
+import numpy
 import cupy as np
 import os
 from . import utils
@@ -15,7 +16,6 @@ from .reader import ReaderKind
 
 
 class Loader:
-
     def __init__(self, nout, path):
         # Generate directory name from output number
         self.nout = nout
@@ -166,7 +166,8 @@ class Loader:
                     reader.read_level_header(ilevel, twotondim)
 
                 # Loop over domains
-                for domain in range(int(readers["amr"].meta["nboundary"] + meta["ncpu"])):
+                for domain in range(int(readers["amr"].meta["nboundary"] +
+                                        meta["ncpu"])):
 
                     ncache = readers["amr"].meta["ngridlevel"][domain, ilevel]
 
@@ -231,7 +232,7 @@ class Loader:
             out[group] = Datagroup()
             for key, item in reader.variables.items():
                 if item["read"] and len(item["pieces"]) > 0:
-                    out[group][key] = np.concatenate(list(item["pieces"].values()))
+                    out[group][key] = numpy.concatenate(list(item["pieces"].values()))
             # If vector quantities are found, make them into vector Arrays
             utils.make_vector_arrays(out[group], ndim=meta["ndim"])
 
