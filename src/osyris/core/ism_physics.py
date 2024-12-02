@@ -95,6 +95,7 @@ def read_opacity_table(fname, ngrp):
 
 	return theTable
 
+
 def get_opacities(dataset, fname, variables=["kappa_p", "kappa_r"]):
 	"""
 	Create opacity variables from interpolation of opacity table values in fname.
@@ -127,6 +128,7 @@ def get_opacities(dataset, fname, variables=["kappa_p", "kappa_r"]):
 			dataset["hydro"][new_var] = Array(values = vals, unit = default_units[var])
 
 	return
+
 
 def read_eos_table(fname):
 	"""
@@ -180,6 +182,7 @@ def read_eos_table(fname):
 
 	return theTable
 
+
 def get_eos(dataset, fname, variables=["rho_eos", "ener_eos", "temp_eos", "pres_eos", "s_eos", "cs_eos", "xH_eos", "xH2_eos", "xHe_eos", "xHep_eos"]):
 	"""
 	Create EOS variables from interpolation of eos table values in fname.
@@ -201,3 +204,106 @@ def get_eos(dataset, fname, variables=["rho_eos", "ener_eos", "temp_eos", "pres_
 		print(" done!")
 
 
+def read_resistivity_table(fname="resistivities_masson2016.bin"):
+
+	print("Loading resistivity table: "+fname)
+
+	# Read binary resistivity file
+	with open(fname, mode='rb') as res_file:
+		data = res_file.read()
+	res_file.close()
+
+	# Create table container
+	theTable = dict()
+
+	# Initialise offset counters and start reading data
+	offsets = {"i":0, "n":0, "d":0}
+
+	# Get length of record on first line to determine number of dimensions in table
+	rec_size = get_binary_data(fmt="i",content=data,correction=-4)
+	ndims = rec_size[0]/4
+	theTable["ndims"] = ndims
+
+	# Get table dimensions
+	nx,ny,nz = np.array(utils.read_binary_data(fmt="%ii"%ndims,content=data,increment=False))
+	theTable["nx"] = np.array((ngrp, nx, ny, nz))
+
+	# Read table coordinates:
+
+	# 1: density
+	offsets["i"] += ndims
+	offsets["d"] += 1
+	theTable["dens"] = get_binary_data(fmt="%id"%theTable["nx"][0],content=data,offsets=offsets)
+
+	# 2: gas temperature
+	offsets["i"] += theTable["nx"][0]
+	offsets["d"] += 1
+	theTable["tgas"] = get_binary_data(fmt="%id"%theTable["nx"][1],content=data,offsets=offsets)
+
+	if ndims == 4:
+		# 3: ionisation rate
+		offsets["i"] += theTable["nx"][1]
+		offsets["d"] += 1
+		theTable["ionx"] = get_binary_data(fmt="%id"%theTable["nx"][2],content=data,offsets=offsets)
+
+	# 4: magnetic field
+	offsets["i"] += theTable["nx"][-2]
+	offsets["d"] += 1
+	theTable["bmag"] = get_binary_data(fmt="%id"%theTable["nx"][-1],content=data,offsets=offsets)
+
+	# Now read resistivities
+	array_size = np.prod(theTable["nx"])
+	array_fmt  = "%id" % array_size
+
+	# Ohmic resistivity
+	offsets["i"] += theTable["nx"][-1]
+	offsets["d"] += 1
+	theTable["eta_ohm"] = np.reshape(get_binary_data(fmt=array_fmt,content=data, \
+	            offsets=offsets),theTable["nx"],order="F")
+
+	# Ambipolar resistivity
+	offsets["i"] += array_size
+	offsets["d"] += 1
+	theTable["eta_ad"] = np.reshape(get_binary_data(fmt=array_fmt,content=data, \
+	            offsets=offsets),theTable["nx"],order="F")
+
+	# Hall resistivity
+	offsets["i"] += array_size
+	offsets["d"] += 1
+	theTable["eta_hall"] = np.reshape(get_binary_data(fmt=array_fmt,content=data, \
+	            offsets=offsets),theTable["nx"],order="F")
+
+	# Hall sign
+	offsets["i"] += array_size
+	offsets["d"] += 1
+	theTable.eta_hsig = np.reshape(get_binary_data(fmt=array_fmt,content=data, \
+	            offsets=offsets),theTable["nx"],order="F")
+
+	del data
+
+	if ndims == 4:
+		theTable["grid"] = (theTable["dens"],theTable["tgas"],theTable["ionx"],theTable["bmag"])
+	elif ndims == 3:
+		theTable["grid"] = (theTable["dens"],theTable["tgas"],theTable["bmag"])
+
+	# Additional parameters
+	theTable["scale_dens"] = 0.844*2.0/1.66e-24 # 2.0*H2_fraction/mH
+	theTable["ionis_rate"] = 1.0e-17
+
+	print("Resistivity table read successfully")
+
+	return theTable
+
+
+def get_resistivity_table(dataset, fname, variables=["rho_eos", "ener_eos", "temp_eos", "pres_eos", "s_eos", "cs_eos", "xH_eos", "xH2_eos", "xHe_eos", "xHep_eos"]):
+	"""
+	Create EOS variables from interpolation of eos table values in fname.
+	"""
+
+	default_units = {"rho_eos":"g/cm^3", "ener_eos":"erg","temp_eos":"K","pres_eos":"dyn/cm^2","s_eos":"erg/K/g","cs_eos":"cm/s","xH_eos":None,"xH2_eos":None,"xHe_eos":None,"xHep_eos":None}
+
+	if dataset.meta["eos"] == 0:
+		print("Simulation data did not use a tabulated EOS. Exiting.")
+		return
+	if "res_table" not in dataset.meta:
+		dataset.meta["res_table"] = read_resistivity_table(fname=fname)
