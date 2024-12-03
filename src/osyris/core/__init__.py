@@ -8,4 +8,4 @@ from .vector import Vector
 from .datagroup import Datagroup
 from .dataset import Dataset
 from .plot import Plot
-from .ism_physics import get_eos, get_opacities
+from .ism_physics import get_eos, get_opacities, get_resistivity_table
