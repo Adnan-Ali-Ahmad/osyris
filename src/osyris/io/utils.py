@@ -96,7 +96,8 @@ def read_binary_data(content=None,
                      fmt=None,
                      offsets=None,
                      skip_head=True,
-                     increment=True):
+                     increment=True,
+                     correction=0):
     """
     Unpack binary data from a content buffer using a dict of offsets.
     Also increment the offsets of the corresponding data read, as well as
@@ -131,6 +132,7 @@ def read_binary_data(content=None,
         offsets["n"] += 1
     if skip_head:
         offset += 4
+    offset += correction
 
     return struct.unpack(fmt, content[offset:offset + pack_size])
 
