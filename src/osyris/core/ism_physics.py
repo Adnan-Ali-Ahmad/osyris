@@ -226,7 +226,7 @@ def read_resistivity_table(fname="resistivities_masson2016.bin"):
 
 	# Get table dimensions
 	nx,ny,nz = np.array(utils.read_binary_data(fmt="%ii"%ndims,content=data,increment=False))
-	theTable["nx"] = np.array((ngrp, nx, ny, nz))
+	theTable["nx"] = np.array((nx, ny, nz))
 
 	# Read table coordinates:
 
