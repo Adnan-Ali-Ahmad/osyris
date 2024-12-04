@@ -221,7 +221,7 @@ def read_resistivity_table(fname="resistivities_masson2016.bin"):
 
 	# Get length of record on first line to determine number of dimensions in table
 	rec_size = utils.read_binary_data(fmt="i",content=data,correction=-4)
-	ndims = rec_size[0]/4
+	ndims = int(rec_size[0]/4)
 	theTable["ndims"] = ndims
 
 	# Get table dimensions
@@ -233,23 +233,23 @@ def read_resistivity_table(fname="resistivities_masson2016.bin"):
 	# 1: density
 	offsets["i"] += ndims
 	offsets["d"] += 1
-	theTable["dens"] = utils.read_binary_data(fmt="%id"%theTable["nx"][0],content=data,offsets=offsets)
+	theTable["dens"] = utils.read_binary_data(fmt="%id"%theTable["nx"][0],content=data,offsets=offsets, increment=False)
 
 	# 2: gas temperature
 	offsets["i"] += theTable["nx"][0]
 	offsets["d"] += 1
-	theTable["tgas"] = utils.read_binary_data(fmt="%id"%theTable["nx"][1],content=data,offsets=offsets)
+	theTable["tgas"] = utils.read_binary_data(fmt="%id"%theTable["nx"][1],content=data,offsets=offsets, increment=False)
 
 	if ndims == 4:
 		# 3: ionisation rate
 		offsets["i"] += theTable["nx"][1]
 		offsets["d"] += 1
-		theTable["ionx"] = utils.read_binary_data(fmt="%id"%theTable["nx"][2],content=data,offsets=offsets)
+		theTable["ionx"] = utils.read_binary_data(fmt="%id"%theTable["nx"][2],content=data,offsets=offsets, increment=False)
 
 	# 4: magnetic field
 	offsets["i"] += theTable["nx"][-2]
 	offsets["d"] += 1
-	theTable["bmag"] = utils.read_binary_data(fmt="%id"%theTable["nx"][-1],content=data,offsets=offsets)
+	theTable["bmag"] = utils.read_binary_data(fmt="%id"%theTable["nx"][-1],content=data,offsets=offsets, increment=False)
 
 	# Now read resistivities
 	array_size = np.prod(theTable["nx"])
@@ -259,25 +259,25 @@ def read_resistivity_table(fname="resistivities_masson2016.bin"):
 	offsets["i"] += theTable["nx"][-1]
 	offsets["d"] += 1
 	theTable["eta_ohm"] = np.reshape(utils.read_binary_data(fmt=array_fmt,content=data, \
-	            offsets=offsets),theTable["nx"],order="F")
+	            offsets=offsets, increment=False),theTable["nx"],order="F")
 
 	# Ambipolar resistivity
 	offsets["i"] += array_size
 	offsets["d"] += 1
 	theTable["eta_ad"] = np.reshape(utils.read_binary_data(fmt=array_fmt,content=data, \
-	            offsets=offsets),theTable["nx"],order="F")
+	            offsets=offsets, increment=False),theTable["nx"],order="F")
 
 	# Hall resistivity
 	offsets["i"] += array_size
 	offsets["d"] += 1
 	theTable["eta_hall"] = np.reshape(utils.read_binary_data(fmt=array_fmt,content=data, \
-	            offsets=offsets),theTable["nx"],order="F")
+	            offsets=offsets, increment=False),theTable["nx"],order="F")
 
 	# Hall sign
 	offsets["i"] += array_size
 	offsets["d"] += 1
-	theTable.eta_hsig = np.reshape(utils.read_binary_data(fmt=array_fmt,content=data, \
-	            offsets=offsets),theTable["nx"],order="F")
+	theTable["eta_hsig"] = np.reshape(utils.read_binary_data(fmt=array_fmt,content=data, \
+	            offsets=offsets, increment=False),theTable["nx"],order="F")
 
 	del data
 
@@ -302,8 +302,5 @@ def get_resistivity_table(dataset, fname, variables=["rho_eos", "ener_eos", "tem
 
 	default_units = {"rho_eos":"g/cm^3", "ener_eos":"erg","temp_eos":"K","pres_eos":"dyn/cm^2","s_eos":"erg/K/g","cs_eos":"cm/s","xH_eos":None,"xH2_eos":None,"xHe_eos":None,"xHep_eos":None}
 
-	if dataset.meta["eos"] == 0:
-		print("Simulation data did not use a tabulated EOS. Exiting.")
-		return
 	if "res_table" not in dataset.meta:
 		dataset.meta["res_table"] = read_resistivity_table(fname=fname)
