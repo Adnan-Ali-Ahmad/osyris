@@ -295,12 +295,39 @@ def read_resistivity_table(fname="resistivities_masson2016.bin"):
 	return theTable
 
 
-def get_resistivity_table(dataset, fname, variables=["rho_eos", "ener_eos", "temp_eos", "pres_eos", "s_eos", "cs_eos", "xH_eos", "xH2_eos", "xHe_eos", "xHep_eos"]):
+def get_resistivities(dataset, fname, variables=["eta_ohm","eta_ad","eta_hall"]):
 	"""
 	Create EOS variables from interpolation of eos table values in fname.
 	"""
 
-	default_units = {"rho_eos":"g/cm^3", "ener_eos":"erg","temp_eos":"K","pres_eos":"dyn/cm^2","s_eos":"erg/K/g","cs_eos":"cm/s","xH_eos":None,"xH2_eos":None,"xHe_eos":None,"xHep_eos":None}
+	default_units = {"eta_ohm":"s", "eta_ad":"s","eta_hall":"s"}
 
 	if "res_table" not in dataset.meta:
 		dataset.meta["res_table"] = read_resistivity_table(fname=fname)
+
+	# get density scale from metadata
+	try:
+		rho_to_nH = dataset.meta["res_table"]["scale_dens"]/dataset.meta["mu_gas"]
+	except KeyError:
+		rho_to_nH = dataset.meta["res_table"]["scale_dens"]/2.31 # Default mean atomic weight
+
+	ionisation_rate = np.ones(dataset["hydro"].shape)*dataset.meta["res_table"]["ionis_rate"]
+	if dataset.meta["res_table"]["ndims"] == 4:
+		pts = np.array([np.log10(dataset["hydro"]["density"].to("g/cm^3").values*rho_to_nH),
+						np.log10(dataset["hydro"]["temperature"].to("K").values),
+						np.log10(ionisation_rate),
+						np.log10(dataset["hydro"]["B_field"].norm.to("G").values)]).T
+	elif dataset.meta["res_table"]["ndims"] == 3:
+		pts = np.array([np.log10(dataset["hydro"]["density"].to("g/cm^3").values*rho_to_nH),
+						np.log10(dataset["hydro"]["temperature"].to("K").values),
+						np.log10(dataset["hydro"]["B_field"].norm.to("G").values)]).T
+
+	for var in variables:
+		print("Interpolating "+var+"...", end="")
+		vals = ism_interpolate(dataset.meta["res_table"],dataset.meta["res_table"][var],pts)
+		if var == "eta_hall":
+			hall_sign = np.sign(ism_interpolate(dataset.meta["res_table"],dataset.meta["res_table"]["eta_hsig"],pts,in_log=True))
+			dataset["hydro"][var] = Array(values = vals*hall_sign, unit = "s")
+		else:
+			dataset["hydro"][var] = Array(values = vals, unit = default_units[var])
+		print(" done!")
