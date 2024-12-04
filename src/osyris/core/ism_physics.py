@@ -330,7 +330,7 @@ def get_resistivities(dataset, fname, variables=["eta_ohm","eta_ad","eta_hall"])
 		dens[is_out_of_bounds] = 10**np.max(dataset.meta["res_table"]["grid"][0])
 
 	# check if temperature out of grid bounds:
-	temp = np.copy(dataset["hydro"]["temperature"].to("K").values*rho_to_nH)
+	temp = np.copy(dataset["hydro"]["temperature"].to("K").values)
 	is_out_of_bounds = np.log10(temp) > np.max(dataset.meta["res_table"]["grid"][1])
 	if np.any(is_out_of_bounds):
 		print("WARNING: Temperature is out of resistivity grid bounds!")
