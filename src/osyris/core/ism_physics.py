@@ -242,7 +242,7 @@ def read_resistivity_table(fname="resistivities_masson2016.bin"):
 
 	if ndims == 4:
 		# 3: ionisation rate
-		offsets["i"] += theTable["nx"][1]
+		offsets["n"] += theTable["nx"][1]
 		offsets["d"] += 1
 		theTable["ionx"] = utils.read_binary_data(fmt="%id"%theTable["nx"][2],content=data,offsets=offsets, increment=False)
 
