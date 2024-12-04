@@ -236,7 +236,7 @@ def read_resistivity_table(fname="resistivities_masson2016.bin"):
 	theTable["dens"] = utils.read_binary_data(fmt="%id"%theTable["nx"][0],content=data,offsets=offsets, increment=False)
 
 	# 2: gas temperature
-	offsets["i"] += theTable["nx"][0]
+	offsets["n"] += theTable["nx"][0]
 	offsets["d"] += 1
 	theTable["tgas"] = utils.read_binary_data(fmt="%id"%theTable["nx"][1],content=data,offsets=offsets, increment=False)
 
@@ -247,7 +247,7 @@ def read_resistivity_table(fname="resistivities_masson2016.bin"):
 		theTable["ionx"] = utils.read_binary_data(fmt="%id"%theTable["nx"][2],content=data,offsets=offsets, increment=False)
 
 	# 4: magnetic field
-	offsets["i"] += theTable["nx"][-2]
+	offsets["n"] += theTable["nx"][-2]
 	offsets["d"] += 1
 	theTable["bmag"] = utils.read_binary_data(fmt="%id"%theTable["nx"][-1],content=data,offsets=offsets, increment=False)
 
@@ -256,25 +256,25 @@ def read_resistivity_table(fname="resistivities_masson2016.bin"):
 	array_fmt  = "%id" % array_size
 
 	# Ohmic resistivity
-	offsets["i"] += theTable["nx"][-1]
+	offsets["n"] += theTable["nx"][-1]
 	offsets["d"] += 1
 	theTable["eta_ohm"] = np.reshape(utils.read_binary_data(fmt=array_fmt,content=data, \
 	            offsets=offsets, increment=False),theTable["nx"],order="F")
 
 	# Ambipolar resistivity
-	offsets["i"] += array_size
+	offsets["n"] += array_size
 	offsets["d"] += 1
 	theTable["eta_ad"] = np.reshape(utils.read_binary_data(fmt=array_fmt,content=data, \
 	            offsets=offsets, increment=False),theTable["nx"],order="F")
 
 	# Hall resistivity
-	offsets["i"] += array_size
+	offsets["n"] += array_size
 	offsets["d"] += 1
 	theTable["eta_hall"] = np.reshape(utils.read_binary_data(fmt=array_fmt,content=data, \
 	            offsets=offsets, increment=False),theTable["nx"],order="F")
 
 	# Hall sign
-	offsets["i"] += array_size
+	offsets["n"] += array_size
 	offsets["d"] += 1
 	theTable["eta_hsig"] = np.reshape(utils.read_binary_data(fmt=array_fmt,content=data, \
 	            offsets=offsets, increment=False),theTable["nx"],order="F")
