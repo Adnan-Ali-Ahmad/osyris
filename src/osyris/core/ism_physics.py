@@ -234,22 +234,26 @@ def read_resistivity_table(fname="resistivities_masson2016.bin"):
 	offsets["i"] += ndims
 	offsets["d"] += 1
 	theTable["dens"] = utils.read_binary_data(fmt="%id"%theTable["nx"][0],content=data,offsets=offsets, increment=False)
+	offsets["n"] -= 1
 
 	# 2: gas temperature
 	offsets["n"] += theTable["nx"][0]
 	offsets["d"] += 1
 	theTable["tgas"] = utils.read_binary_data(fmt="%id"%theTable["nx"][1],content=data,offsets=offsets, increment=False)
+	offsets["n"] -= 1
 
 	if ndims == 4:
 		# 3: ionisation rate
 		offsets["n"] += theTable["nx"][1]
 		offsets["d"] += 1
 		theTable["ionx"] = utils.read_binary_data(fmt="%id"%theTable["nx"][2],content=data,offsets=offsets, increment=False)
+		offsets["n"] -= 1
 
 	# 4: magnetic field
 	offsets["n"] += theTable["nx"][-2]
 	offsets["d"] += 1
 	theTable["bmag"] = utils.read_binary_data(fmt="%id"%theTable["nx"][-1],content=data,offsets=offsets, increment=False)
+	offsets["n"] -= 1
 
 	# Now read resistivities
 	array_size = np.prod(theTable["nx"])
@@ -260,24 +264,28 @@ def read_resistivity_table(fname="resistivities_masson2016.bin"):
 	offsets["d"] += 1
 	theTable["eta_ohm"] = np.reshape(utils.read_binary_data(fmt=array_fmt,content=data, \
 	            offsets=offsets, increment=False),theTable["nx"],order="F")
+	offsets["n"] -= 1
 
 	# Ambipolar resistivity
 	offsets["n"] += array_size
 	offsets["d"] += 1
 	theTable["eta_ad"] = np.reshape(utils.read_binary_data(fmt=array_fmt,content=data, \
 	            offsets=offsets, increment=False),theTable["nx"],order="F")
+	offsets["n"] -= 1
 
 	# Hall resistivity
 	offsets["n"] += array_size
 	offsets["d"] += 1
 	theTable["eta_hall"] = np.reshape(utils.read_binary_data(fmt=array_fmt,content=data, \
 	            offsets=offsets, increment=False),theTable["nx"],order="F")
+	offsets["n"] -= 1
 
 	# Hall sign
 	offsets["n"] += array_size
 	offsets["d"] += 1
 	theTable["eta_hsig"] = np.reshape(utils.read_binary_data(fmt=array_fmt,content=data, \
 	            offsets=offsets, increment=False),theTable["nx"],order="F")
+	offsets["n"] -= 1
 
 	del data
 
