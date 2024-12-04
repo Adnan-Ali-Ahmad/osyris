@@ -320,6 +320,7 @@ def get_resistivities(dataset, fname, variables=["eta_ohm","eta_ad","eta_hall"])
 		rho_to_nH = dataset.meta["res_table"]["scale_dens"]/2.31 # Default mean atomic weight
 
 	ionisation_rate = np.ones(dataset["hydro"].shape)*dataset.meta["res_table"]["ionis_rate"]
+
 	# check if density out of grid bounds:
 	dens = np.copy(dataset["hydro"]["density"].to("g/cm^3").values*rho_to_nH)
 	is_out_of_bounds = np.log10(dens) > np.max(dataset.meta["res_table"]["grid"][0])
@@ -327,14 +328,23 @@ def get_resistivities(dataset, fname, variables=["eta_ohm","eta_ad","eta_hall"])
 		print("WARNING: Density is out of resistivity grid bounds!")
 		# proceed to fill those values with min grid trad
 		dens[is_out_of_bounds] = 10**np.max(dataset.meta["res_table"]["grid"][0])
+
+	# check if temperature out of grid bounds:
+	temp = np.copy(dataset["hydro"]["temperature"].to("K").values*rho_to_nH)
+	is_out_of_bounds = np.log10(temp) > np.max(dataset.meta["res_table"]["grid"][1])
+	if np.any(is_out_of_bounds):
+		print("WARNING: Temperature is out of resistivity grid bounds!")
+		# proceed to fill those values with min grid trad
+		temp[is_out_of_bounds] = 10**np.max(dataset.meta["res_table"]["grid"][1])
+
 	if dataset.meta["res_table"]["ndims"] == 4:
 		pts = np.array([np.log10(dens),
-						np.log10(dataset["hydro"]["temperature"].to("K").values),
+						np.log10(temp),
 						np.log10(ionisation_rate),
 						np.log10(dataset["hydro"]["B_field"].norm.to("G").values)]).T
 	elif dataset.meta["res_table"]["ndims"] == 3:
 		pts = np.array([np.log10(dens),
-						np.log10(dataset["hydro"]["temperature"].to("K").values),
+						np.log10(temp),
 						np.log10(dataset["hydro"]["B_field"].norm.to("G").values)]).T
 
 	for var in variables:
