@@ -435,7 +435,7 @@ def read_marchand_table(data, ndims):
 	offsets["i"] += ndims
 	offsets["d"] += 1
 	resistivite_chimie_x = np.reshape(utils.read_binary_data(fmt="%id"%(np.prod(nx_read)),content=data,offsets=offsets),nx_read,order="F")
-	print("Resistivity table read successfully")
+	print("Abundances table read successfully")
 	del data
 
 	return resistivite_chimie_x, nx
