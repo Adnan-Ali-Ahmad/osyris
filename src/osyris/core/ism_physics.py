@@ -438,7 +438,7 @@ def read_marchand_table(data, ndims):
 	print("Resistivity table read successfully")
 	del data
 
-	return resistivite_chimie_x
+	return resistivite_chimie_x, nx
 
 def read_resistivity_table(fname="resistivities_masson2016.bin"):
 
@@ -460,7 +460,7 @@ def read_resistivity_table(fname="resistivities_masson2016.bin"):
 	if ndims == 3:
 		theTable = get_masson_table(theTable, data, ndims)
 	elif ndims == 4:
-		resistivite_chimie_x = read_marchand_table(data, ndims)
+		resistivite_chimie_x, nx = read_marchand_table(data, ndims)
 		nminchimie, nmaxchimie = np.min(resistivite_chimie_x[0]), np.max(resistivite_chimie_x[0])
 		eta_ohm, eta_ad, eta_hall, eta_hsig = compute_resistivities(resistivite_chimie_x, nx, ndims)
 		theTable = {"eta_ad":eta_ad, "eta_ohm":eta_ohm, "eta_hall":eta_hall, "eta_hsig":eta_hsig}
