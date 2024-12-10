@@ -422,7 +422,7 @@ def compute_resistivities(resistivite_chimie_x, nx, ndims):
 
 	return eta_ohm, eta_ad, eta_hall, eta_hsig
 
-def read_marchand_table(data):
+def read_marchand_table(data, ndims):
 
 	# Initialise offset counters and start reading data
 	offsets = {"i":0, "n":0, "d":0}
@@ -460,7 +460,7 @@ def read_resistivity_table(fname="resistivities_masson2016.bin"):
 	if ndims == 3:
 		theTable = get_masson_table(theTable, data, ndims)
 	elif ndims == 4:
-		resistivite_chimie_x = read_marchand_table(data)
+		resistivite_chimie_x = read_marchand_table(data, ndims)
 		nminchimie, nmaxchimie = np.min(resistivite_chimie_x[0]), np.max(resistivite_chimie_x[0])
 		eta_ohm, eta_ad, eta_hall, eta_hsig = compute_resistivities(resistivite_chimie_x, nx, ndims)
 		theTable = {"eta_ad":eta_ad, "eta_ohm":eta_ohm, "eta_hall":eta_hall, "eta_hsig":eta_hsig}
