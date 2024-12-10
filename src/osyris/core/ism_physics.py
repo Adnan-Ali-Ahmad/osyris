@@ -205,7 +205,7 @@ def get_eos(dataset, fname, variables=["rho_eos", "ener_eos", "temp_eos", "pres_
 		print(" done!")
 
 
-def get_masson_table(theTable, data):
+def get_masson_table(theTable, data, ndims):
 
 	# Initialise offset counters and start reading data
 	offsets = {"i":0, "n":0, "d":0}
@@ -458,7 +458,7 @@ def read_resistivity_table(fname="resistivities_masson2016.bin"):
 	theTable["ndims"] = ndims
 
 	if ndims == 3:
-		theTable = get_masson_table(theTable, data)
+		theTable = get_masson_table(theTable, data, ndims)
 	elif ndims == 4:
 		resistivite_chimie_x = read_marchand_table(data)
 		nminchimie, nmaxchimie = np.min(resistivite_chimie_x[0]), np.max(resistivite_chimie_x[0])
