@@ -455,7 +455,6 @@ def read_resistivity_table(fname="resistivities_masson2016.bin"):
 	# Get length of record on first line to determine number of dimensions in table
 	rec_size = utils.read_binary_data(fmt="i",content=data,correction=-4)
 	ndims = int(rec_size[0]/4)
-	theTable["ndims"] = ndims
 
 	if ndims == 3:
 		theTable = get_masson_table(theTable, data, ndims)
@@ -475,6 +474,7 @@ def read_resistivity_table(fname="resistivities_masson2016.bin"):
 		B_arr = np.logspace(np.log10(bminchimie), np.log10(bmaxchimie), eta_ad.shape[3])
 		theTable["grid"] = (dens_arr,T_arr,xi_arr,B_arr)
 		print("3D resistivity table successfully computed")
+	theTable["ndims"] = ndims
 
 	return theTable
 
