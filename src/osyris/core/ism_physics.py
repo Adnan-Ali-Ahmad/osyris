@@ -468,10 +468,10 @@ def read_resistivity_table(fname="resistivities_masson2016.bin"):
 		tminchimie, tmaxchimie = np.min(resistivite_chimie_x[1]), np.max(resistivite_chimie_x[1])
 		ximinchimie, ximaxchimie = np.min(resistivite_chimie_x[2]), np.max(resistivite_chimie_x[2])
 		bminchimie, bmaxchimie = 1e-10, 1e+10
-		dens_arr = np.logspace(np.log10(nminchimie), np.log10(nmaxchimie), eta_ad.shape[0])
-		T_arr = np.logspace(np.log10(tminchimie), np.log10(tmaxchimie), eta_ad.shape[1])
-		xi_arr = np.logspace(np.log10(ximinchimie), np.log10(ximaxchimie), eta_ad.shape[2])
-		B_arr = np.logspace(np.log10(bminchimie), np.log10(bmaxchimie), eta_ad.shape[3])
+		dens_arr = np.log10(np.logspace(np.log10(nminchimie), np.log10(nmaxchimie), eta_ad.shape[0]))
+		T_arr = np.log10(np.logspace(np.log10(tminchimie), np.log10(tmaxchimie), eta_ad.shape[1]))
+		xi_arr = np.log10(np.logspace(np.log10(ximinchimie), np.log10(ximaxchimie), eta_ad.shape[2]))
+		B_arr = np.log10(np.logspace(np.log10(bminchimie), np.log10(bmaxchimie), eta_ad.shape[3]))
 		theTable["grid"] = (dens_arr,T_arr,xi_arr,B_arr)
 		print("3D resistivity table successfully computed")
 	theTable["ndims"] = ndims
