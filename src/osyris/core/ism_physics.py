@@ -372,7 +372,6 @@ def compute_resistivities(resistivite_chimie_x, nx, ndims):
 	omega_bar   = np.zeros((nx[0]))
 
 	for iX in range(xichimie):
-		print("Computing 3D resistivity table: "+str(iX+1)+"/"+str(xichimie))
 		for iB in range(bchimie):
 			for iT in range(tchimie):
 				for iH in range(nchimie):
@@ -461,7 +460,9 @@ def read_resistivity_table(fname="resistivities_masson2016.bin"):
 	elif ndims == 4:
 		resistivite_chimie_x, nx = read_marchand_table(data, ndims)
 		nminchimie, nmaxchimie = np.min(resistivite_chimie_x[0]), np.max(resistivite_chimie_x[0])
+		print("Computing 3D resistivity table...", end="")
 		eta_ohm, eta_ad, eta_hall, eta_hsig = compute_resistivities(resistivite_chimie_x, nx, ndims)
+		print(" done!")
 		theTable = {"eta_ad":eta_ad, "eta_ohm":eta_ohm, "eta_hall":eta_hall, "eta_hsig":eta_hsig}
 		theTable["scale_dens"] = 0.844*2.0/1.66e-24 # 2.0*H2_fraction/mH
 		theTable["ionis_rate"] = 1e-17
