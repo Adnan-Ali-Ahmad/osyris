@@ -371,8 +371,8 @@ def compute_resistivities(resistivite_chimie_x, nx, ndims):
 	gamma_omega = np.zeros((nx[0]))
 	omega_bar   = np.zeros((nx[0]))
 
+	print("Computing 3D resistivity table...", end="")
 	for iX in range(xichimie):
-		print("Computing 3D resistivity table: "+str(iX+1)+"/"+str(xichimie))
 		for iB in range(bchimie):
 			for iT in range(tchimie):
 				for iH in range(nchimie):
@@ -419,6 +419,7 @@ def compute_resistivities(resistivite_chimie_x, nx, ndims):
 					eta_ad  [iH,iT,iX,iB] = np.log10(sigO/(sigO**2+sigH**2)-1.0/sigP) # Ambipolar
 					eta_hall[iH,iT,iX,iB] = np.log10(abs(sigH/(sigO**2+sigH**2)))     # Hall
 					eta_hsig[iH,iT,iX,iB] = sigH / abs(sigH)                          # Hall sign
+	print(" done!")
 
 	return eta_ohm, eta_ad, eta_hall, eta_hsig
 
