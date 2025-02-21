@@ -1,13 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2021 Osyris contributors (https://github.com/nvaytet/osyris)
-"""
-This file aims to re-introduce the ism_physics routines of osiris into Osyris.
-
-To do:
--Opacities reader DONE
--Resistivities reader
--EOS reader DONE
-"""
 
 import struct
 import os
@@ -113,8 +105,8 @@ def get_opacities(dataset, fname, variables=["kappa_p", "kappa_r"]):
     default_units = {"kappa_p": "cm^2/g", "kappa_r": "cm^2/g"}
 
     ngrp = dataset.meta["ngrp"]
-    #if "opacity_table" not in dataset.meta:
-    dataset.meta["opacity_table"] = read_opacity_table(fname, ngrp)
+    if "opacity_table" not in dataset.meta:
+        dataset.meta["opacity_table"] = read_opacity_table(fname, ngrp)
 
     for i in range(1, ngrp + 1):
         if "radiative_temperature_{}".format(i) not in dataset["hydro"]:
