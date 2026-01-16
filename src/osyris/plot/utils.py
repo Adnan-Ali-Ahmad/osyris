@@ -38,8 +38,8 @@ def evaluate_on_grid(cell_positions_in_new_basis_x, cell_positions_in_new_basis_
 
         # cell position in original basis
         pos_orig_x = cell_positions_in_original_basis_x[n]
-        pos_orig_y = cell_positions_in_original_basis_y[n] if has_y else 0.0
-        pos_orig_z = cell_positions_in_original_basis_z[n] if has_z else 0.0
+        pos_orig_y = cell_positions_in_original_basis_y[n]
+        pos_orig_z = cell_positions_in_original_basis_z[n]
 
         ix1 = int((cell_positions_in_new_basis_x[n] - half_size -
                    grid_lower_edge_in_new_basis_x) * inv_dx)
