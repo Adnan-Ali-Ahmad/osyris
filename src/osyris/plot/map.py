@@ -349,7 +349,7 @@ def map(
     xcenters *= scale_ratio
     ycenters *= scale_ratio
 
-    if operation is None and dz is not None:
+    if (operation is None) and thick:
         zcenters = np.linspace(zmin + 0.5 * zspacing, zmax - 0.5 * zspacing, nz_pix)
         zcenters *= scale_ratio
 
