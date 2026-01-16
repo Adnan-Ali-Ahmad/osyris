@@ -46,32 +46,34 @@ def _add_scatter(to_scatter, origin, dir_vecs, dx, dy, ax, map_unit):
             # TODO: also check that parents are the same to ensure size match?
             if isinstance(to_scatter[0]["params"]["c"], Array):
                 to_scatter[0]["params"]["c"] = to_scatter[0]["params"]["c"][
-                    global_selection]
+                    global_selection
+                ]
         datax.name = dir_vecs["pos_u"].name
         datay.name = dir_vecs["pos_v"].name
-        scatter(x=datax.to(map_unit),
-                y=datay.to(map_unit),
-                ax=ax,
-                **to_scatter[0]["params"])
+        scatter(
+            x=datax.to(map_unit), y=datay.to(map_unit), ax=ax, **to_scatter[0]["params"]
+        )
 
 
-def map(*layers,
-        direction: Union[str, list] = "z",
-        dx: Quantity = None,
-        dy: Quantity = None,
-        dz: Quantity = None,
-        filename: str = None,
-        title: str = None,
-        plot: bool = True,
-        mode: str = None,
-        norm: str = None,
-        vmin: float = None,
-        vmax: float = None,
-        origin: Array = None,
-        resolution: Union[int, dict] = None,
-        operation: str = "sum",
-        ax: object = None,
-        **kwargs) -> Plot:
+def map(
+    *layers,
+    direction: Union[str, list] = "z",
+    dx: Quantity = None,
+    dy: Quantity = None,
+    dz: Quantity = None,
+    filename: str = None,
+    title: str = None,
+    plot: bool = True,
+    mode: str = None,
+    norm: str = None,
+    vmin: float = None,
+    vmax: float = None,
+    origin: Array = None,
+    resolution: Union[int, dict] = None,
+    operation: str = "sum",
+    ax: object = None,
+    **kwargs
+) -> Plot:
     """
     Create a 2D spatial map of a region inside a simulation domain.
     By default, the map represents a plane with zero thickness.
@@ -145,22 +147,21 @@ def map(*layers,
     to_render = []
     to_scatter = []
     for layer in layers:
-        data, settings, params = parse_layer(layer=layer,
-                                             mode=mode,
-                                             norm=norm,
-                                             vmin=vmin,
-                                             vmax=vmax,
-                                             **kwargs)
+        data, settings, params = parse_layer(
+            layer=layer, mode=mode, norm=norm, vmin=vmin, vmax=vmax, **kwargs
+        )
         if settings["mode"] == "scatter":
             to_scatter.append({"data": data, "params": params})
         else:
             to_process.append(data)
-            to_render.append({
-                "mode": settings["mode"],
-                "params": params,
-                "unit": data.unit,
-                "name": data.name
-            })
+            to_render.append(
+                {
+                    "mode": settings["mode"],
+                    "params": params,
+                    "unit": data.unit,
+                    "name": data.name,
+                }
+            )
 
     dataset = to_process[0].parent.parent
     ndim = dataset.meta["ndim"]
@@ -177,11 +178,9 @@ def map(*layers,
     if origin is None:
         origin = Vector(*[0 for n in range(ndim)], unit=spatial_unit)
 
-    dir_vecs = get_direction(direction=direction,
-                             dataset=dataset,
-                             dx=dx,
-                             dy=dy,
-                             origin=origin)
+    dir_vecs = get_direction(
+        direction=direction, dataset=dataset, dx=dx, dy=dy, origin=origin
+    )
 
     diagonal = np.sqrt(ndim)
     xyz = dataset["amr"]["position"] - origin
@@ -211,8 +210,10 @@ def map(*layers,
         subset_xyz = xyz[indices_close_to_plane]
         subset_dx = dataset["amr"]["dx"][indices_close_to_plane]
         radial_distance = subset_xyz - 0.5 * subset_dx * diagonal
-        radial_selection = np.abs(radial_distance.norm.values) <= max(
-            dx.magnitude, dy.magnitude, dz.magnitude) * 0.6 * diagonal
+        radial_selection = (
+            np.abs(radial_distance.norm.values)
+            <= max(dx.magnitude, dy.magnitude, dz.magnitude) * 0.6 * diagonal
+        )
         indices_close_to_plane = indices_close_to_plane[radial_selection]
 
     coords = xyz[indices_close_to_plane]
@@ -247,7 +248,8 @@ def map(*layers,
             w = None
             if isinstance(to_render[ind]["params"].get("color"), (Array, Vector)):
                 w = to_render[ind]["params"]["color"].norm.values[
-                    indices_close_to_plane]
+                    indices_close_to_plane
+                ]
             else:
                 w = u * u
                 w += v * v
@@ -257,43 +259,50 @@ def map(*layers,
             scalar_layer.append(False)
         else:
             to_binning.append(
-                apply_mask(to_process[ind].norm.values[indices_close_to_plane]))
+                apply_mask(to_process[ind].norm.values[indices_close_to_plane])
+            )
             scalar_layer.append(True)
 
     default_resolution = 256
-    if resolution is None: resolution = default_resolution
-    if isinstance(resolution, int): resolution = {'x': resolution, 'y': resolution}
+    if resolution is None:
+        resolution = default_resolution
+    if isinstance(resolution, int):
+        resolution = {"x": resolution, "y": resolution}
     else:
-        for xy in 'xy':
-            if xy not in resolution: resolution[xy] = default_resolution
+        for xy in "xy":
+            if xy not in resolution:
+                resolution[xy] = default_resolution
 
-    xspacing = (xmax - xmin) / resolution['x']
-    yspacing = (ymax - ymin) / resolution['y']
+    xspacing = (xmax - xmin) / resolution["x"]
+    yspacing = (ymax - ymin) / resolution["y"]
 
-    nx_pix = int(resolution['x'])
-    ny_pix = int(resolution['y'])
+    nx_pix = int(resolution["x"])
+    ny_pix = int(resolution["y"])
 
     if thick:
-        if 'z' not in resolution:
-            resolution['z'] = round((zmax - zmin) / (0.5 * (xspacing + yspacing)))
-        zspacing = (zmax - zmin) / resolution['z']
-        nz_pix = int(resolution['z'])
+        if "z" not in resolution:
+            resolution["z"] = round((zmax - zmin) / (0.5 * (xspacing + yspacing)))
+        zspacing = (zmax - zmin) / resolution["z"]
+        nz_pix = int(resolution["z"])
     else:
-        zmin = 0.
+        zmin = 0.0
         zspacing = 1.0
         nz_pix = 1
 
     # flatten vectors for Numba
-    u_vals = np.array([
-        vec_u.x.values, vec_u.y.values, vec_u.z.values if vec_u.z is not None else 0.0
-    ])
-    v_vals = np.array([
-        vec_v.x.values, vec_v.y.values, vec_v.z.values if vec_v.z is not None else 0.0
-    ])
-    n_vals = np.array([
-        normal.x.values, normal.y.values,
-        normal.z.values if normal.z is not None else 0.0
-    ])
+    u_vals = np.array(
+        [vec_u.x.values, vec_u.y.values, vec_u.z.values if vec_u.z is not None else 0.0]
+    )
+    v_vals = np.array(
+        [vec_v.x.values, vec_v.y.values, vec_v.z.values if vec_v.z is not None else 0.0]
+    )
+    n_vals = np.array(
+        [
+            normal.x.values,
+            normal.y.values,
+            normal.z.values if normal.z is not None else 0.0,
+        ]
+    )
 
     cell_values_arr = np.array(to_binning)
 
@@ -304,9 +313,11 @@ def map(*layers,
         cell_positions_in_new_basis_z=apply_mask(dataz.values),
         cell_positions_in_original_basis_x=coords.x.values,
         cell_positions_in_original_basis_y=coords.y.values
-        if coords.y is not None else None,
+        if coords.y is not None
+        else None,
         cell_positions_in_original_basis_z=coords.z.values
-        if coords.z is not None else None,
+        if coords.z is not None
+        else None,
         cell_values=cell_values_arr,
         cell_sizes=datadx.values,
         grid_lower_edge_in_new_basis_x=xmin,
@@ -328,7 +339,8 @@ def map(*layers,
         vz=v_vals[2],
         nx_vec=n_vals[0],
         ny_vec=n_vals[1],
-        nz_vec=n_vals[2])
+        nz_vec=n_vals[2],
+    )
 
     xcenters = np.linspace(xmin + 0.5 * xspacing, xmax - 0.5 * xspacing, nx_pix)
     ycenters = np.linspace(ymin + 0.5 * yspacing, ymax - 0.5 * yspacing, ny_pix)
@@ -346,12 +358,12 @@ def map(*layers,
     counter = 0
     for ind in range(len(to_render)):
         if scalar_layer[ind]:
-            to_render[ind]["data"] = ma.masked_where(mask,
-                                                     binned[counter, ...],
-                                                     copy=False)
+            to_render[ind]["data"] = ma.masked_where(
+                mask, binned[counter, ...], copy=False
+            )
             counter += 1
         else:
-            vec_data = np.moveaxis(binned[counter:counter + 3, ...], 0, -1)
+            vec_data = np.moveaxis(binned[counter : counter + 3, ...], 0, -1)
             to_render[ind]["data"] = ma.masked_where(mask_vec, vec_data, copy=False)
             counter += 3
 
@@ -359,28 +371,46 @@ def map(*layers,
     xcenters *= scale_ratio
     ycenters *= scale_ratio
 
+    if operation is None and dz is not None:
+        zcenters = np.linspace(zmin + 0.5 * zspacing, zmax - 0.5 * zspacing, nz_pix)
+        zcenters *= scale_ratio
+
+        return {
+            "data": binned,
+            "x": xcenters,
+            "y": ycenters,
+            "z": zcenters,
+            "layers": to_render,
+            "unit": map_unit,
+        }
+
     to_return = {
         "x": xcenters,
         "y": ycenters,
         "layers": to_render,
-        "filename": filename
+        "filename": filename,
     }
     if plot:
         figure = render(x=xcenters, y=ycenters, data=to_render, ax=ax)
         figure["ax"].set_xlabel(
-            Array(values=0, unit=map_unit, name=dir_vecs["pos_u"].name).label)
+            Array(values=0, unit=map_unit, name=dir_vecs["pos_u"].name).label
+        )
         figure["ax"].set_ylabel(
-            Array(values=0, unit=map_unit, name=dir_vecs["pos_v"].name).label)
-        if ax is None: figure["ax"].set_aspect("equal")
+            Array(values=0, unit=map_unit, name=dir_vecs["pos_v"].name).label
+        )
+        if ax is None:
+            figure["ax"].set_aspect("equal")
 
         if len(to_scatter) > 0:
-            _add_scatter(to_scatter=to_scatter,
-                         origin=origin,
-                         dir_vecs=dir_vecs,
-                         dx=dx,
-                         dy=dy,
-                         ax=figure["ax"],
-                         map_unit=map_unit)
+            _add_scatter(
+                to_scatter=to_scatter,
+                origin=origin,
+                dir_vecs=dir_vecs,
+                dx=dx,
+                dy=dy,
+                ax=figure["ax"],
+                map_unit=map_unit,
+            )
 
         xmin *= scale_ratio
         xmax *= scale_ratio
