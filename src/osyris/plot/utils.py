@@ -5,7 +5,7 @@ import numpy as np
 from numba import njit, prange
 
 
-@njit(parallel=True)
+@njit(parallel=True, fastmath=True)
 def evaluate_on_grid(cell_positions_in_new_basis_x, cell_positions_in_new_basis_y,
                      cell_positions_in_new_basis_z, cell_positions_in_original_basis_x,
                      cell_positions_in_original_basis_y,
@@ -17,52 +17,73 @@ def evaluate_on_grid(cell_positions_in_new_basis_x, cell_positions_in_new_basis_
 
     nz, ny, nx = grid_positions_in_original_basis.shape[:3]
     diagonal = np.sqrt(ndim)
+
+    inv_dx = 1.0 / grid_spacing_in_new_basis_x
+    inv_dy = 1.0 / grid_spacing_in_new_basis_y
+    inv_dz = 1.0 / grid_spacing_in_new_basis_z
+
     out = np.full(shape=(cell_values.shape[0], nz, ny, nx),
                   fill_value=np.nan,
                   dtype=np.float64)
 
     ncells = len(cell_positions_in_new_basis_x)
+    # avoid checking dimensions inside for loop
+    has_y = cell_positions_in_original_basis_y is not None
+    has_z = cell_positions_in_original_basis_z is not None
+
     for n in prange(ncells):
 
         half_size = cell_sizes[n] * diagonal
-        ix1 = max(
-            int(((cell_positions_in_new_basis_x[n] - half_size) -
-                 grid_lower_edge_in_new_basis_x) / grid_spacing_in_new_basis_x), 0)
-        ix2 = min(
-            int(((cell_positions_in_new_basis_x[n] + half_size) -
-                 grid_lower_edge_in_new_basis_x) / grid_spacing_in_new_basis_x) + 1, nx)
-        iy1 = max(
-            int(((cell_positions_in_new_basis_y[n] - half_size) -
-                 grid_lower_edge_in_new_basis_y) / grid_spacing_in_new_basis_y), 0)
-        iy2 = min(
-            int(((cell_positions_in_new_basis_y[n] + half_size) -
-                 grid_lower_edge_in_new_basis_y) / grid_spacing_in_new_basis_y) + 1, ny)
-        iz1 = max(
-            int(((cell_positions_in_new_basis_z[n] - half_size) -
-                 grid_lower_edge_in_new_basis_z) / grid_spacing_in_new_basis_z), 0)
-        iz2 = min(
-            int(((cell_positions_in_new_basis_z[n] + half_size) -
-                 grid_lower_edge_in_new_basis_z) / grid_spacing_in_new_basis_z) + 1, nz)
+
+        current_val = cell_values[:,
+                                  n]  # cache cell value (avoids repeated memory lookups)
+        current_size = cell_sizes[n]
+
+        # cell position in original basis
+        pos_orig_x = cell_positions_in_original_basis_x[n]
+        pos_orig_y = cell_positions_in_original_basis_y[n] if has_y else 0.0
+        pos_orig_z = cell_positions_in_original_basis_z[n] if has_z else 0.0
+
+        ix1 = int((cell_positions_in_new_basis_x[n] - half_size -
+                   grid_lower_edge_in_new_basis_x) * inv_dx)
+        ix2 = int((cell_positions_in_new_basis_x[n] + half_size -
+                   grid_lower_edge_in_new_basis_x) * inv_dx) + 1
+
+        iy1 = int((cell_positions_in_new_basis_y[n] - half_size -
+                   grid_lower_edge_in_new_basis_y) * inv_dy)
+        iy2 = int((cell_positions_in_new_basis_y[n] + half_size -
+                   grid_lower_edge_in_new_basis_y) * inv_dy) + 1
+
+        iz1 = int((cell_positions_in_new_basis_z[n] - half_size -
+                   grid_lower_edge_in_new_basis_z) * inv_dz)
+        iz2 = int((cell_positions_in_new_basis_z[n] + half_size -
+                   grid_lower_edge_in_new_basis_z) * inv_dz) + 1
+
+        ix1 = max(ix1, 0)
+        ix2 = min(ix2, nx)
+        iy1 = max(iy1, 0)
+        iy2 = min(iy2, ny)
+        iz1 = max(iz1, 0)
+        iz2 = min(iz2, nz)
 
         for k in range(iz1, iz2):
             for j in range(iy1, iy2):
                 for i in range(ix1, ix2):
-                    ok_x = np.abs(
-                        grid_positions_in_original_basis[k, j, i, 0] -
-                        cell_positions_in_original_basis_x[n]) <= cell_sizes[n]
-                    ok_y = True
-                    if cell_positions_in_original_basis_y is not None:
-                        ok_y = np.abs(
-                            grid_positions_in_original_basis[k, j, i, 1] -
-                            cell_positions_in_original_basis_y[n]) <= cell_sizes[n]
-                    ok_z = True
-                    if cell_positions_in_original_basis_z is not None:
-                        ok_z = np.abs(
-                            grid_positions_in_original_basis[k, j, i, 2] -
-                            cell_positions_in_original_basis_z[n]) <= cell_sizes[n]
+                    dist_x = grid_positions_in_original_basis[k, j, i, 0] - pos_orig_x
+                    if np.abs(dist_x) > current_size:
+                        continue
+                    
+                    if has_y:
+                        dist_y = grid_positions_in_original_basis[k, j, i, 1] - pos_orig_y
+                        if np.abs(dist_y) > current_size:
+                            continue
 
-                    if ok_x and ok_y and ok_z:
-                        out[:, k, j, i] = cell_values[:, n]
+                    if has_z:
+                        dist_z = grid_positions_in_original_basis[k, j, i, 2] - pos_orig_z
+                        if np.abs(dist_z) > current_size:
+                            continue
+
+                    out[:, k, j, i] = current_val
 
     return out
 
