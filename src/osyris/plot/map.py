@@ -72,7 +72,7 @@ def map(
     resolution: Union[int, dict] = None,
     operation: str = "sum",
     ax: object = None,
-    **kwargs,
+    **kwargs
 ) -> Plot:
     """
     Create a 2D spatial map of a region inside a simulation domain.
@@ -305,9 +305,6 @@ def map(
     )
 
     cell_values_arr = np.array(to_binning)
-
-    print(f"Number of layers passed: {len(layers)}")
-    print(f"Shape of binning array: {cell_values_arr.shape}")
 
     # Call optimized kernel
     binned = evaluate_on_grid(
