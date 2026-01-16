@@ -6,7 +6,6 @@ from numba import njit, prange
 
 
 @njit(parallel=True, fastmath=True)
-@njit(parallel=True, fastmath=True)
 def evaluate_on_grid(cell_positions_in_new_basis_x, cell_positions_in_new_basis_y,
                      cell_positions_in_new_basis_z, cell_positions_in_original_basis_x,
                      cell_positions_in_original_basis_y,
