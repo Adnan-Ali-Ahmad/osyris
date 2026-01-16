@@ -138,7 +138,7 @@ def map(*layers,
         Default is ``None``, in which case some new axes a created.
     """
 
-if isinstance(layers, Array):
+    if isinstance(layers, Array):
         layers = [layers]
 
     to_process = []
