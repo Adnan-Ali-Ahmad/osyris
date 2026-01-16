@@ -215,8 +215,9 @@ def map(*layers,
         zmin = -0.5 * dz.magnitude
         zmax = zmin + dz.magnitude
         # Limit selection further by using distance from center
-        radial_distance = xyz[indices_close_to_plane] - 0.5 * dataset["amr"]["dx"][
-            indices_close_to_plane] * diagonal
+        subset_xyz = xyz[indices_close_to_plane]
+        subset_dx = dataset["amr"]["dx"][indices_close_to_plane]
+        radial_distance = subset_xyz - 0.5 * subset_dx * diagonal
         radial_selection = np.abs(radial_distance.norm.values) <= max(
             dx.magnitude, dy.magnitude, dz.magnitude) * 0.6 * diagonal
         indices_close_to_plane = indices_close_to_plane[radial_selection]
@@ -279,63 +280,51 @@ def map(*layers,
                 resolution[xy] = default_resolution
     xspacing = (xmax - xmin) / resolution['x']
     yspacing = (ymax - ymin) / resolution['y']
-    xcenters = np.linspace(xmin + 0.5 * xspacing, xmax - 0.5 * xspacing,
-                           resolution['x'])
-    ycenters = np.linspace(ymin + 0.5 * yspacing, ymax - 0.5 * yspacing,
-                           resolution['y'])
+    nx_pix = resolution['x']
+    ny_pix = resolution['y']
 
     if thick:
         if 'z' not in resolution:
             resolution['z'] = round((zmax - zmin) / (0.5 * (xspacing + yspacing)))
         zspacing = (zmax - zmin) / resolution['z']
-        zcenters = np.linspace(zmin + 0.5 * zspacing, zmax - 0.5 * zspacing,
-                               resolution['z'])
+        nz_pix = resolution['z']
     else:
         zmin = 0.
         zspacing = 1.0
         zcenters = [0.]
 
-    xg, yg, zg = np.meshgrid(xcenters, ycenters, zcenters, indexing='ij')
-    xgrid = xg.T
-    ygrid = yg.T
-    zgrid = zg.T
-    u_array = np.array([
-        vec_u.x.values, vec_u.y.values,
-        vec_u.z.values if vec_u.z is not None else np.zeros_like(vec_u.x.values)
-    ])
-    v_array = np.array([
-        vec_v.x.values, vec_v.y.values,
-        vec_v.z.values if vec_v.z is not None else np.zeros_like(vec_v.x.values)
-    ])
-    n_array = np.array([
-        normal.x.values, normal.y.values,
-        normal.z.values if normal.z is not None else np.zeros_like(normal.x.values)
-    ])
-
-    pixel_positions = xgrid.reshape(xgrid.shape + (1, )) * u_array + ygrid.reshape(
-        ygrid.shape + (1, )) * v_array + zgrid.reshape(zgrid.shape + (1, )) * n_array
+    u_vals = np.array([vec_u.x.values, vec_u.y.values, vec_u.z.values if vec_u.z is not None else 0.0])
+    v_vals = np.array([vec_v.x.values, vec_v.y.values, vec_v.z.values if vec_v.z is not None else 0.0])
+    n_vals = np.array([normal.x.values, normal.y.values, normal.z.values if normal.z is not None else 0.0])
+    origin_vals = np.array([origin.x.values, origin.y.values, origin.z.values if origin.z is not None else 0.0])
 
     # Evaluate the values of the data layers at the grid positions
-    binned = evaluate_on_grid(cell_positions_in_new_basis_x=apply_mask(datax.values),
-                              cell_positions_in_new_basis_y=apply_mask(datay.values),
-                              cell_positions_in_new_basis_z=apply_mask(dataz.values),
-                              cell_positions_in_original_basis_x=coords.x.values,
-                              cell_positions_in_original_basis_y=coords.y.values
-                              if coords.y is not None else None,
-                              cell_positions_in_original_basis_z=coords.z.values
-                              if coords.z is not None else None,
-                              cell_values=np.array(to_binning),
-                              cell_sizes=datadx.values,
-                              grid_lower_edge_in_new_basis_x=xmin,
-                              grid_lower_edge_in_new_basis_y=ymin,
-                              grid_lower_edge_in_new_basis_z=zmin,
-                              grid_spacing_in_new_basis_x=xspacing,
-                              grid_spacing_in_new_basis_y=yspacing,
-                              grid_spacing_in_new_basis_z=zspacing,
-                              grid_positions_in_original_basis=pixel_positions,
-                              ndim=ndim)
+    binned = evaluate_on_grid(
+        cell_positions_in_new_basis_x=apply_mask(datax.values),
+        cell_positions_in_new_basis_y=apply_mask(datay.values),
+        cell_positions_in_new_basis_z=apply_mask(dataz.values),
+        cell_positions_in_original_basis_x=coords.x.values,
+        cell_positions_in_original_basis_y=coords.y.values if coords.y is not None else None,
+        cell_positions_in_original_basis_z=coords.z.values if coords.z is not None else None,
+        cell_values=np.array(to_binning),
+        cell_sizes=datadx.values,
+        grid_lower_edge_in_new_basis_x=xmin,
+        grid_lower_edge_in_new_basis_y=ymin,
+        grid_lower_edge_in_new_basis_z=zmin,
+        grid_spacing_in_new_basis_x=xspacing,
+        grid_spacing_in_new_basis_y=yspacing,
+        grid_spacing_in_new_basis_z=zspacing,
+        nx=int(nx_pix), ny=int(ny_pix), nz=int(nz_pix), ndim=ndim,
+        # Passed Basis Vectors
+        origin_x=origin_vals[0], origin_y=origin_vals[1], origin_z=origin_vals[2],
+        ux=u_vals[0], uy=u_vals[1], uz=u_vals[2],
+        vx=v_vals[0], vy=v_vals[1], vz=v_vals[2],
+        nx_vec=n_vals[0], ny_vec=n_vals[1], nz_vec=n_vals[2]
+    )
 
     # Apply operation along depth
+    xcenters = np.linspace(xmin + 0.5 * xspacing, xmax - 0.5 * xspacing, nx_pix)
+    ycenters = np.linspace(ymin + 0.5 * yspacing, ymax - 0.5 * yspacing, ny_pix)
     binned = getattr(np, operation)(binned, axis=1)
 
     # Handle thick maps
