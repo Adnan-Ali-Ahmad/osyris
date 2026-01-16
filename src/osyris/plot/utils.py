@@ -6,6 +6,7 @@ from numba import njit, prange
 
 
 @njit(parallel=True, fastmath=True)
+@njit(parallel=True, fastmath=True)
 def evaluate_on_grid(cell_positions_in_new_basis_x, cell_positions_in_new_basis_y,
                      cell_positions_in_new_basis_z, cell_positions_in_original_basis_x,
                      cell_positions_in_original_basis_y,
@@ -14,15 +15,12 @@ def evaluate_on_grid(cell_positions_in_new_basis_x, cell_positions_in_new_basis_
                      grid_lower_edge_in_new_basis_z, grid_spacing_in_new_basis_x,
                      grid_spacing_in_new_basis_y, grid_spacing_in_new_basis_z,
                      nx, ny, nz, ndim,
-                     # New arguments for on-the-fly calculation
-                     origin_x, origin_y, origin_z,
+                     # Vector components only (No origin needed)
                      ux, uy, uz,
                      vx, vy, vz,
-                     nx_vec, ny_vec, nz_vec): # Renamed 'normal' to avoid confusion with nx
+                     nx_vec, ny_vec, nz_vec):
 
-    nz, ny, nx = grid_positions_in_original_basis.shape[:3]
-    diagonal = np.sqrt(ndim)
-
+    # Pre-calculate inverse spacing
     inv_dx = 1.0 / grid_spacing_in_new_basis_x
     inv_dy = 1.0 / grid_spacing_in_new_basis_y
     inv_dz = 1.0 / grid_spacing_in_new_basis_z
@@ -32,61 +30,84 @@ def evaluate_on_grid(cell_positions_in_new_basis_x, cell_positions_in_new_basis_
                   dtype=np.float64)
 
     ncells = len(cell_positions_in_new_basis_x)
+    diagonal = np.sqrt(ndim)
+
+    has_y = cell_positions_in_original_basis_y is not None
+    has_z = cell_positions_in_original_basis_z is not None
 
     for n in prange(ncells):
-
         half_size = cell_sizes[n] * diagonal
-
-        current_val = cell_values[:,
-                                  n]  # cache cell value (avoids repeated memory lookups)
+        current_val = cell_values[:, n]
         current_size = cell_sizes[n]
-
-        # cell position in original basis
+        
+        # These positions are already relative to origin (from python layer)
         pos_orig_x = cell_positions_in_original_basis_x[n]
-        pos_orig_y = cell_positions_in_original_basis_y[n]
-        pos_orig_z = cell_positions_in_original_basis_z[n]
+        pos_orig_y = cell_positions_in_original_basis_y[n] if has_y else 0.0
+        pos_orig_z = cell_positions_in_original_basis_z[n] if has_z else 0.0
 
-        ix1 = int((cell_positions_in_new_basis_x[n] - half_size -
-                   grid_lower_edge_in_new_basis_x) * inv_dx)
-        ix2 = int((cell_positions_in_new_basis_x[n] + half_size -
-                   grid_lower_edge_in_new_basis_x) * inv_dx) + 1
+        # Calculate bounds in the new basis (Map coordinates)
+        # 1. Shift cell to Map Frame
+        rel_x = cell_positions_in_new_basis_x[n] - grid_lower_edge_in_new_basis_x
+        rel_y = cell_positions_in_new_basis_y[n] - grid_lower_edge_in_new_basis_y
+        rel_z = cell_positions_in_new_basis_z[n] - grid_lower_edge_in_new_basis_z
 
-        iy1 = int((cell_positions_in_new_basis_y[n] - half_size -
-                   grid_lower_edge_in_new_basis_y) * inv_dy)
-        iy2 = int((cell_positions_in_new_basis_y[n] + half_size -
-                   grid_lower_edge_in_new_basis_y) * inv_dy) + 1
+        # 2. Determine integer indices
+        ix1 = int((rel_x - half_size) * inv_dx)
+        ix2 = int((rel_x + half_size) * inv_dx) + 1
+        iy1 = int((rel_y - half_size) * inv_dy)
+        iy2 = int((rel_y + half_size) * inv_dy) + 1
+        iz1 = int((rel_z - half_size) * inv_dz)
+        iz2 = int((rel_z + half_size) * inv_dz) + 1
 
-        iz1 = int((cell_positions_in_new_basis_z[n] - half_size -
-                   grid_lower_edge_in_new_basis_z) * inv_dz)
-        iz2 = int((cell_positions_in_new_basis_z[n] + half_size -
-                   grid_lower_edge_in_new_basis_z) * inv_dz) + 1
-
-        ix1 = max(ix1, 0)
-        ix2 = min(ix2, nx)
-        iy1 = max(iy1, 0)
-        iy2 = min(iy2, ny)
-        iz1 = max(iz1, 0)
-        iz2 = min(iz2, nz)
+        # 3. Clamp
+        ix1 = max(ix1, 0); ix2 = min(ix2, nx)
+        iy1 = max(iy1, 0); iy2 = min(iy2, ny)
+        iz1 = max(iz1, 0); iz2 = min(iz2, nz)
 
         for k in range(iz1, iz2):
-            z_coord = grid_lower_edge_in_new_basis_z + (k + 0.5) * grid_spacing_in_new_basis_z
-            pz_x = z_coord * nz_vec
-            pz_y = z_coord * ny_vec
-            pz_z = z_coord * nz_vec
-            for i in range(ix1, ix2):
-                    x_coord = grid_lower_edge_in_new_basis_x + (i + 0.5) * grid_spacing_in_new_basis_x
+            # Map Z coordinate
+            z_map = grid_lower_edge_in_new_basis_z + (k + 0.5) * grid_spacing_in_new_basis_z
+            
+            # Precompute Z contribution to physical position
+            pz_x = z_map * nx_vec
+            pz_y = z_map * ny_vec
+            pz_z = z_map * nz_vec
 
-                    pixel_x = origin_x + x_coord * ux + py_x + pz_x
-                    dist_x = pixel_x - pos_orig_x
+            for j in range(iy1, iy2):
+                # Map Y coordinate
+                y_map = grid_lower_edge_in_new_basis_y + (j + 0.5) * grid_spacing_in_new_basis_y
+                
+                # Precompute Y contribution
+                py_x = y_map * vx
+                py_y = y_map * vy
+                py_z = y_map * vz
+
+                # Combined Y+Z constants for the inner loop
+                pyz_x = py_x + pz_x
+                pyz_y = py_y + pz_y
+                pyz_z = py_z + pz_z
+
+                for i in range(ix1, ix2):
+                    # Map X coordinate
+                    x_map = grid_lower_edge_in_new_basis_x + (i + 0.5) * grid_spacing_in_new_basis_x
+
+                    # Reconstruct Physical Position (Grid Point)
+                    # P_grid = x_map * U + y_map * V + z_map * N
+                    # Note: We do NOT add origin here, because pos_orig is already shifted.
+                    grid_x = x_map * ux + pyz_x
+                    
+                    dist_x = grid_x - pos_orig_x
                     if np.abs(dist_x) > current_size: continue
 
-                    pixel_y = origin_y + x_coord * uy + py_y + pz_y
-                    dist_y = pixel_y - pos_orig_y
-                    if np.abs(dist_y) > current_size: continue
+                    if has_y:
+                        grid_y = x_map * uy + pyz_y
+                        dist_y = grid_y - pos_orig_y
+                        if np.abs(dist_y) > current_size: continue
                     
-                    pixel_z = origin_z + x_coord * uz + py_z + pz_z # Fixed logic
-                    dist_z = pixel_z - pos_orig_z
-                    if np.abs(dist_z) > current_size: continue
+                    if has_z:
+                        grid_z = x_map * uz + pyz_z
+                        dist_z = grid_z - pos_orig_z
+                        if np.abs(dist_z) > current_size: continue
 
                     out[:, k, j, i] = current_val
 
