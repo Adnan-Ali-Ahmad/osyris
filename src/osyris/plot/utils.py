@@ -27,9 +27,6 @@ def evaluate_on_grid(cell_positions_in_new_basis_x, cell_positions_in_new_basis_
                   dtype=np.float64)
 
     ncells = len(cell_positions_in_new_basis_x)
-    # avoid checking dimensions inside for loop
-    has_y = cell_positions_in_original_basis_y is not None
-    has_z = cell_positions_in_original_basis_z is not None
 
     for n in prange(ncells):
 
@@ -73,15 +70,13 @@ def evaluate_on_grid(cell_positions_in_new_basis_x, cell_positions_in_new_basis_
                     if np.abs(dist_x) > current_size:
                         continue
                     
-                    if has_y:
-                        dist_y = grid_positions_in_original_basis[k, j, i, 1] - pos_orig_y
-                        if np.abs(dist_y) > current_size:
-                            continue
+                    dist_y = grid_positions_in_original_basis[k, j, i, 1] - pos_orig_y
+                    if np.abs(dist_y) > current_size:
+                        continue
 
-                    if has_z:
-                        dist_z = grid_positions_in_original_basis[k, j, i, 2] - pos_orig_z
-                        if np.abs(dist_z) > current_size:
-                            continue
+                    dist_z = grid_positions_in_original_basis[k, j, i, 2] - pos_orig_z
+                    if np.abs(dist_z) > current_size:
+                        continue
 
                     out[:, k, j, i] = current_val
 
