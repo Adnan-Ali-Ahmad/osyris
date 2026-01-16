@@ -345,6 +345,23 @@ def map(
     xcenters = np.linspace(xmin + 0.5 * xspacing, xmax - 0.5 * xspacing, nx_pix)
     ycenters = np.linspace(ymin + 0.5 * yspacing, ymax - 0.5 * yspacing, ny_pix)
 
+    scale_ratio = (1.0 * spatial_unit).to(map_unit).magnitude
+    xcenters *= scale_ratio
+    ycenters *= scale_ratio
+
+    if operation is None and dz is not None:
+        zcenters = np.linspace(zmin + 0.5 * zspacing, zmax - 0.5 * zspacing, nz_pix)
+        zcenters *= scale_ratio
+
+        return {
+            "data": binned,
+            "x": xcenters,
+            "y": ycenters,
+            "z": zcenters,
+            "layers": to_render,
+            "unit": map_unit,
+        }
+
     binned = getattr(np, operation)(binned, axis=1)
 
     if thick and ((operation == "sum") or (operation == "nansum")):
@@ -366,23 +383,6 @@ def map(
             vec_data = np.moveaxis(binned[counter : counter + 3, ...], 0, -1)
             to_render[ind]["data"] = ma.masked_where(mask_vec, vec_data, copy=False)
             counter += 3
-
-    scale_ratio = (1.0 * spatial_unit).to(map_unit).magnitude
-    xcenters *= scale_ratio
-    ycenters *= scale_ratio
-
-    if operation is None and dz is not None:
-        zcenters = np.linspace(zmin + 0.5 * zspacing, zmax - 0.5 * zspacing, nz_pix)
-        zcenters *= scale_ratio
-
-        return {
-            "data": binned,
-            "x": xcenters,
-            "y": ycenters,
-            "z": zcenters,
-            "layers": to_render,
-            "unit": map_unit,
-        }
 
     to_return = {
         "x": xcenters,
