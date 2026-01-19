@@ -5,6 +5,7 @@ import numpy as np
 from numba import njit, prange
 
 
+@njit(parallel=True)
 def evaluate_on_grid(
     cell_positions_in_new_basis_x,
     cell_positions_in_new_basis_y,
@@ -129,11 +130,6 @@ def evaluate_on_grid(
                     out[:, k, j, i] = current_val
 
     return out
-
-
-# compile two versions of the above function
-evaluate_on_grid_fast = njit(parallel=True, fastmath=True)(evaluate_on_grid)
-evaluate_on_grid_precise = njit(parallel=True, fastmath=False)(evaluate_on_grid)
 
 
 @njit(parallel=True)

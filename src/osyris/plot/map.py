@@ -11,7 +11,7 @@ from .scatter import scatter
 from .parser import parse_layer
 from ..core import Plot, Array, Vector
 from ..core.tools import apply_mask
-from .utils import evaluate_on_grid_fast, evaluate_on_grid_precise
+from .utils import evaluate_on_grid
 
 
 def _add_scatter(to_scatter, origin, dir_vecs, dx, dy, ax, map_unit):
@@ -72,7 +72,6 @@ def map(
     resolution: Union[int, dict] = None,
     operation: str = "sum",
     ax: object = None,
-    fastmath: bool = False,
     **kwargs
 ) -> Plot:
     """
@@ -307,9 +306,7 @@ def map(
 
     cell_values_arr = np.array(to_binning)
 
-    grid_evaluator = evaluate_on_grid_fast if fastmath else evaluate_on_grid_precise
-
-    binned = grid_evaluator(
+    binned = evaluate_on_grid(
         cell_positions_in_new_basis_x=apply_mask(datax.values),
         cell_positions_in_new_basis_y=apply_mask(datay.values),
         cell_positions_in_new_basis_z=apply_mask(dataz.values),
