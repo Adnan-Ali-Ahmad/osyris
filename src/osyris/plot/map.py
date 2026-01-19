@@ -72,7 +72,7 @@ def map(
     resolution: Union[int, dict] = None,
     operation: str = "sum",
     ax: object = None,
-    fastmath:, bool = False,
+    fastmath: bool = False,
     **kwargs
 ) -> Plot:
     """
@@ -307,7 +307,9 @@ def map(
 
     cell_values_arr = np.array(to_binning)
 
-    grid_evaluator = utils.evaluate_on_grid_fast if fastmath else utils.evaluate_on_grid_precise
+    grid_evaluator = (
+        utils.evaluate_on_grid_fast if fastmath else utils.evaluate_on_grid_precise
+    )
 
     binned = grid_evaluator(
         cell_positions_in_new_basis_x=apply_mask(datax.values),
