@@ -11,7 +11,7 @@ from .scatter import scatter
 from .parser import parse_layer
 from ..core import Plot, Array, Vector
 from ..core.tools import apply_mask
-from .utils import evaluate_on_grid
+from .utils import evaluate_on_grid, get_rotation_matrix
 
 
 def _add_scatter(to_scatter, origin, dir_vecs, dx, dy, ax, map_unit):
@@ -306,7 +306,7 @@ def map(
 
     cell_values_arr = np.array(to_binning)
 
-    new_x, new_y, new_z = utils.get_rotation_matrix(dataset)
+    new_x, new_y, new_z = get_rotation_matrix(dataset)
 
     sim_ax_x_vals = np.array([new_x[0], new_y[0], new_z[0]])
     sim_ax_y_vals = np.array([new_x[1], new_y[1], new_z[1]])
