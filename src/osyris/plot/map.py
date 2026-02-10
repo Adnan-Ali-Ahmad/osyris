@@ -198,7 +198,7 @@ def map(
     if len(indices_close_to_plane) == 0:
         raise RuntimeError("No cells were selected.")
 
-    # xmin = None
+    xmin = None
     # if dx is not None:
     #     xmin = -0.5 * dx.magnitude
     #     xmax = xmin + dx.magnitude
