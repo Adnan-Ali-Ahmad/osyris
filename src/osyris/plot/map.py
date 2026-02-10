@@ -198,23 +198,23 @@ def map(
     if len(indices_close_to_plane) == 0:
         raise RuntimeError("No cells were selected.")
 
-    xmin = None
-    if dx is not None:
-        xmin = -0.5 * dx.magnitude
-        xmax = xmin + dx.magnitude
-        ymin = -0.5 * dy.magnitude
-        ymax = ymin + dy.magnitude
-        zmin = -0.5 * dz.magnitude
-        zmax = zmin + dz.magnitude
+    # xmin = None
+    # if dx is not None:
+    #     xmin = -0.5 * dx.magnitude
+    #     xmax = xmin + dx.magnitude
+    #     ymin = -0.5 * dy.magnitude
+    #     ymax = ymin + dy.magnitude
+    #     zmin = -0.5 * dz.magnitude
+    #     zmax = zmin + dz.magnitude
 
-        subset_xyz = xyz[indices_close_to_plane]
-        subset_dx = dataset["amr"]["dx"][indices_close_to_plane]
-        radial_distance = subset_xyz - 0.5 * subset_dx * diagonal
-        radial_selection = (
-            np.abs(radial_distance.norm.values)
-            <= max(dx.magnitude, dy.magnitude, dz.magnitude) * 0.6 * diagonal
-        )
-        indices_close_to_plane = indices_close_to_plane[radial_selection]
+    #     subset_xyz = xyz[indices_close_to_plane]
+    #     subset_dx = dataset["amr"]["dx"][indices_close_to_plane]
+    #     radial_distance = subset_xyz - 0.5 * subset_dx * diagonal
+    #     radial_selection = (
+    #         np.abs(radial_distance.norm.values)
+    #         <= max(dx.magnitude, dy.magnitude, dz.magnitude) * 0.6 * diagonal
+    #     )
+    #     indices_close_to_plane = indices_close_to_plane[radial_selection]
 
     coords = xyz[indices_close_to_plane]
     datax = coords.dot(vec_u)
