@@ -306,6 +306,13 @@ def map(
 
     cell_values_arr = np.array(to_binning)
 
+    new_x, new_y, new_z = utils.get_rotation_matrix(dataset)
+
+    sim_ax_x_vals = np.array([new_x[0], new_y[0], new_z[0]])
+    sim_ax_y_vals = np.array([new_x[1], new_y[1], new_z[1]])
+    sim_ax_z_vals = np.array([new_x[2], new_y[2], new_z[2]])
+
+
     binned = evaluate_on_grid(
         cell_positions_in_new_basis_x=apply_mask(datax.values),
         cell_positions_in_new_basis_y=apply_mask(datay.values),
@@ -339,6 +346,9 @@ def map(
         nx_vec=n_vals[0],
         ny_vec=n_vals[1],
         nz_vec=n_vals[2],
+        sim_ax_x=sim_ax_x_vals,
+        sim_ax_y=sim_ax_y_vals,
+        sim_ax_z=sim_ax_z_vals
     )
 
     xcenters = np.linspace(xmin + 0.5 * xspacing, xmax - 0.5 * xspacing, nx_pix)

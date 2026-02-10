@@ -5,6 +5,25 @@ import numpy as np
 from numba import njit, prange
 
 
+def get_rotation_matrix(dataset):
+    """
+    Reconstruct the original grid if dataset has been rotated
+    """
+    if not hasattr(dataset, "basis") or dataset.basis is None:
+        return np.array([1.0, 0.0, 0.0]), np.array([0.0, 1.0, 0.0]), np.array([0.0, 0.0, 1.0])
+
+    new_z = dataset.basis
+    if abs(new_z[2]) < 0.99:
+        new_x = np.cross([0, 0, 1], new_z)
+    else:
+        new_x = np.cross([0, 1, 0], new_z)
+    
+    new_x = new_x / np.linalg.norm(new_x)
+    new_y = np.cross(new_z, new_x)
+    
+    return new_x, new_y, new_z
+
+
 @njit(parallel=True)
 def evaluate_on_grid(
     cell_positions_in_new_basis_x,
@@ -34,6 +53,9 @@ def evaluate_on_grid(
     nx_vec,
     ny_vec,
     nz_vec,
+    sim_ax_x, 
+    sim_ax_y, 
+    sim_ax_z
 ):
     inv_dx = 1.0 / grid_spacing_in_new_basis_x
     inv_dy = 1.0 / grid_spacing_in_new_basis_y
