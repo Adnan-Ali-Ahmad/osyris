@@ -134,22 +134,29 @@ def evaluate_on_grid(
 
                     # reconstruct pos
                     grid_x = x_map * ux + pyz_x
-
                     dist_x = grid_x - pos_orig_x
+                    if has_y:
+                        grid_y = x_map * uy + pyz_y
+                        dist_y = grid_y - pos_orig_y
+                    else:
+                        dist_y = 0
+                    if has_z:
+                        grid_z = x_map * uz + pyz_z
+                        dist_z = grid_z - pos_orig_z
+                    else:
+                        dist_z = 0
+
+
                     d_sim_x = dist_x * sim_ax_x[0] + dist_y * sim_ax_x[1] + dist_z * sim_ax_x[2]
                     if np.abs(d_sim_x) > current_size * epsilon:
                         continue
 
                     if has_y:
-                        grid_y = x_map * uy + pyz_y
-                        dist_y = grid_y - pos_orig_y
                         d_sim_y = dist_x * sim_ax_y[0] + dist_y * sim_ax_y[1] + dist_z * sim_ax_y[2]
                         if np.abs(d_sim_y) > current_size * epsilon:
                             continue
 
                     if has_z:
-                        grid_z = x_map * uz + pyz_z
-                        dist_z = grid_z - pos_orig_z
                         d_sim_z = dist_x * sim_ax_z[0] + dist_y * sim_ax_z[1] + dist_z * sim_ax_z[2]
                         if np.abs(d_sim_z) > current_size * epsilon:
                             continue
