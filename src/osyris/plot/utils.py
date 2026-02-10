@@ -7,7 +7,7 @@ from numba import njit, prange
 
 def get_rotation_matrix(dataset):
     """
-    Reconstruct the original grid if dataset has been rotated
+    Reconstruct the original grid basis if dataset has been rotated
     """
     if not hasattr(dataset, "basis") or dataset.basis is None:
         return np.array([1.0, 0.0, 0.0]), np.array([0.0, 1.0, 0.0]), np.array([0.0, 0.0, 1.0])
@@ -74,9 +74,9 @@ def evaluate_on_grid(
     epsilon = 1 + 1e-5
 
     for n in prange(ncells):
-        half_size = cell_sizes[n] * diagonal
         current_val = cell_values[:, n]
         current_size = cell_sizes[n]
+        half_size = current_size * diagonal
 
         pos_orig_x = cell_positions_in_original_basis_x[n]
         pos_orig_y = cell_positions_in_original_basis_y[n] if has_y else 0.0
@@ -136,19 +136,22 @@ def evaluate_on_grid(
                     grid_x = x_map * ux + pyz_x
 
                     dist_x = grid_x - pos_orig_x
-                    if np.abs(dist_x) > current_size * epsilon:
+                    d_sim_x = dist_x * sim_ax_x[0] + dist_y * sim_ax_x[1] + dist_z * sim_ax_x[2]
+                    if np.abs(d_sim_x) > current_size * epsilon:
                         continue
 
                     if has_y:
                         grid_y = x_map * uy + pyz_y
                         dist_y = grid_y - pos_orig_y
-                        if np.abs(dist_y) > current_size * epsilon:
+                        d_sim_y = dist_x * sim_ax_y[0] + dist_y * sim_ax_y[1] + dist_z * sim_ax_y[2]
+                        if np.abs(d_sim_y) > current_size * epsilon:
                             continue
 
                     if has_z:
                         grid_z = x_map * uz + pyz_z
                         dist_z = grid_z - pos_orig_z
-                        if np.abs(dist_z) > current_size * epsilon:
+                        d_sim_z = dist_x * sim_ax_z[0] + dist_y * sim_ax_z[1] + dist_z * sim_ax_z[2]
+                        if np.abs(d_sim_z) > current_size * epsilon:
                             continue
 
                     out[:, k, j, i] = current_val
