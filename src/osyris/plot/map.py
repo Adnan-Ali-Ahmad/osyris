@@ -199,13 +199,13 @@ def map(
         raise RuntimeError("No cells were selected.")
 
     xmin = None
-    # if dx is not None:
-    #     xmin = -0.5 * dx.magnitude
-    #     xmax = xmin + dx.magnitude
-    #     ymin = -0.5 * dy.magnitude
-    #     ymax = ymin + dy.magnitude
-    #     zmin = -0.5 * dz.magnitude
-    #     zmax = zmin + dz.magnitude
+    if dx is not None:
+        xmin = -0.5 * dx.magnitude
+        xmax = xmin + dx.magnitude
+        ymin = -0.5 * dy.magnitude
+        ymax = ymin + dy.magnitude
+        zmin = -0.5 * dz.magnitude
+        zmax = zmin + dz.magnitude
 
     #     subset_xyz = xyz[indices_close_to_plane]
     #     subset_dx = dataset["amr"]["dx"][indices_close_to_plane]
