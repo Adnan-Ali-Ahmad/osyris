@@ -49,6 +49,8 @@ def evaluate_on_grid(
     has_y = cell_positions_in_original_basis_y is not None
     has_z = cell_positions_in_original_basis_z is not None
 
+    epsilon = 1 + 1e-5
+
     for n in prange(ncells):
         half_size = cell_sizes[n] * diagonal
         current_val = cell_values[:, n]
@@ -112,19 +114,19 @@ def evaluate_on_grid(
                     grid_x = x_map * ux + pyz_x
 
                     dist_x = grid_x - pos_orig_x
-                    if np.abs(dist_x) > current_size:
+                    if np.abs(dist_x) > current_size * epsilon:
                         continue
 
                     if has_y:
                         grid_y = x_map * uy + pyz_y
                         dist_y = grid_y - pos_orig_y
-                        if np.abs(dist_y) > current_size:
+                        if np.abs(dist_y) > current_size * epsilon:
                             continue
 
                     if has_z:
                         grid_z = x_map * uz + pyz_z
                         dist_z = grid_z - pos_orig_z
-                        if np.abs(dist_z) > current_size:
+                        if np.abs(dist_z) > current_size * epsilon:
                             continue
 
                     out[:, k, j, i] = current_val
