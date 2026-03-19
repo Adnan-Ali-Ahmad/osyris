@@ -71,7 +71,7 @@ def evaluate_on_grid(
     has_y = cell_positions_in_original_basis_y is not None
     has_z = cell_positions_in_original_basis_z is not None
 
-    epsilon = 1 + 1e-5
+    epsilon = 1 #+ 1e-5
 
     for n in prange(ncells):
         current_val = cell_values[:, n]
