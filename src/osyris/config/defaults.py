@@ -34,7 +34,8 @@ def configure_units(units, unit_d, unit_l, unit_t):
     mass = density * length**3
     temperature = 1.0 * units("K")
     grav_potential = velocity**2
-    grad_p = energy/length
+    grad_p = energy / length
+    current_density = magnetic_field / length
 
     library = {
         'unit_d': unit_d,
@@ -54,6 +55,8 @@ def configure_units(units, unit_d, unit_l, unit_t):
         'B_field_*': magnetic_field,
         'B_*_left': magnetic_field,
         'B_*_right': magnetic_field,
+        'current': current_density,
+        'current_*': current_density,
         'acceleration': acceleration,
         'grav_acceleration': acceleration,
         'grav_acceleration_*': acceleration,
