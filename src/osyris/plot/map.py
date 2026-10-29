@@ -443,8 +443,8 @@ def map(
         zspacing = (zmax - zmin) / resolution["z"]
         nz_pix = int(resolution["z"])
     else:
-        zmin = -0.5
-        zspacing = 1.0
+        zmin = -0.5 * dz.magnitude
+        zspacing = dz.magnitude
         nz_pix = 1
 
     # flatten vectors for Numba
